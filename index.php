@@ -41,7 +41,7 @@ if(isset($_SESSION['steamid'])){
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <!--<link href="css/custom.css" rel="stylesheet">-->
 </head>
 <body>
@@ -82,7 +82,7 @@ if(isset($_SESSION['steamid'])){
                                     <input type="text" class="form-control" placeholder="e.g: &#34;Tryhard captains mode&#34; or &#34;Custom games&#34;" name="gamemode" aria-describedby="gamemodeLabel">
                                 </div>
                                 <div class="input-group">
-                                    <p>In what server?</p>
+                                    <h4>In what server?</h4>
                                     <?php
                                     for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
                                         echo '<label class="checkbox-inline">';
@@ -110,9 +110,9 @@ if(isset($_SESSION['steamid'])){
     </div>
 
     <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap JS -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript">
     $( document ).ready(function() {
         //Tooltip opt-in

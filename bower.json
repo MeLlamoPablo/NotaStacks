@@ -1,0 +1,21 @@
+{
+  "name": "NotaStacks",
+  "version": "0.1",
+  "authors": [
+    "Pablo Rodríguez <pabloviolin8@gmail.com>"
+  ],
+  "description": "An app for organizing Dota stacks for NotA",
+  "main": "index.php",
+  "license": "MPL-2.0",
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "eonasdan-bootstrap-datetimepicker": "~4.14.30"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
