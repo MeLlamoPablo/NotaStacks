@@ -155,6 +155,11 @@ class Stack{
 	public $time;
 
 	/**
+	 * @var string $server The server where the Stack will play.
+	 */
+	public $server;
+
+	/**
 	 * @var int $ownerid The ID of the user who created the stack
 	 */
 	public $ownerid;
@@ -169,7 +174,7 @@ class Stack{
 	 * case, it will also send the created object to the database.
 	 *
 	 * The structure for the $data array is the following:
-	 * $arrayName = array('players' => $players, 'gamemode' => $gamemode, 'time' => $time, 'ownerid' => $ownerid);
+	 * $arrayName = array('players' => $players, 'gamemode' => $gamemode, 'time' => $time, 'ownerid' => $ownerid), 'server' => $server;
 	 *
 	 * @param string $source The source from where the method will get the data. It's either the row ID or "provided".
 	 * @param int $data An array containing the data. Optional. Needed if the first parameter is "provided".
@@ -178,7 +183,7 @@ class Stack{
 	public function __construct($source, $data = array()){
 		if($source === "provided"){
 			//The information is provided
-			if(!isset($data['players']) OR !isset($data['gamemode']) OR !isset($data['time']) OR !isset($data['ownerid'])) return;
+			if(!isset($data['players']) OR !isset($data['gamemode']) OR !isset($data['time']) OR !isset($data['ownerid']) OR !isset($data['server'])) return;
 
 			//Check if the provided $players is in the right format (an array with User objects)
 			if(!is_array($data['players'])) return;
@@ -188,7 +193,7 @@ class Stack{
 
 			//Store the data into the database
 			global $mysqli;
-			$mysqli->query("INSERT INTO stacks (`gamemode`, `time`, `ownerid`) VALUES ('".$mysqli->real_escape_string($data['gamemode'])."', '".$mysqli->real_escape_string($data['time'])."', '".$mysqli->real_escape_string($data['ownerid'])."');");
+			$mysqli->query("INSERT INTO stacks (`gamemode`, `time`, `ownerid`,`server`) VALUES ('".$mysqli->real_escape_string($data['gamemode'])."', '".$mysqli->real_escape_string($data['time'])."', '".$mysqli->real_escape_string($data['ownerid'])."', '".$mysqli->real_escape_string($data['server'])."');");
 
 			//Create the object
 			$this->id = $mysqli->insert_id;
@@ -196,6 +201,7 @@ class Stack{
 			$this->gamemode = $data['gamemode'];
 			$this->time = $data['time'];
 			$this->ownerid = $data['ownerid'];
+			$this->server = $data['server'];
 
 			//Store the relations between this stack and its player in stacks_players
 			for ($i=0; isset($this->players[$i]); $i++) { 
