@@ -27,6 +27,8 @@ if(isset($_SESSION['steamid'])){
 
 }
 
+//TODO add submit to create stack and handle it
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,9 +42,12 @@ if(isset($_SESSION['steamid'])){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <!-- Bootstrap -->
-    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!--<link href="css/custom.css" rel="stylesheet">-->
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
+    <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
 </head>
 <body>
     <div class="container">
@@ -69,20 +74,54 @@ if(isset($_SESSION['steamid'])){
             <!-- Modal -->
             <div class="modal fade" id="addStack" tabindex="-1" role="dialog" aria-labelledby="addStack">
                 <div class="modal-dialog" role="document">
-                    <div class="modal-content">
+                    <div class="modal-content"><form action="index.php" method="POST">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title" id="myModalLabel">Create a new Stack</h4>
                         </div>
                         <div class="modal-body">
                             <p>Here you can create a Stack so that you can gather players and play with them!</p>
-                            <form action="index.php" method="POST">
+                            
+                                <h3>What will you be playing?</h3>
                                 <div class="input-group">
-                                    <span class="input-group-addon" id="gamemodeLabel">What will you be playing?</span>
+                                    <span class="input-group-addon" id="gamemodeLabel">Kind of games</span>
                                     <input type="text" class="form-control" placeholder="e.g: &#34;Tryhard captains mode&#34; or &#34;Custom games&#34;" name="gamemode" aria-describedby="gamemodeLabel">
                                 </div>
+                                <h3>When will you be playing?</h3>
                                 <div class="input-group">
-                                    <h4>In what server?</h4>
+                                    <div class="container">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-md-8">
+                                                        <input type="hidden" id="timePicker">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <script type="text/javascript">
+                                            $(function () {
+                                                $('#timePicker').datetimepicker({
+                                                    inline: true,
+                                                    sideBySide: true,
+                                                    format: 'D-M-YYYY-H-m'
+                                                });
+                                                //Convert the user input to an unix timestamp, then set it as the input value.
+
+                                                //We do this for avoiding problems with timezones.
+                                                //Time should be stored in the server as an unix timestamp, then converted client-side with moment.js
+
+                                                //The operation is performed once after the timePicker is created, and every time it's modified
+                                                $('#timePicker').val(moment($('#timePicker').val(), 'D-M-YYYY-H-m').unix());
+                                                $('#timePicker').on('dp.change', function(){
+                                                    $(this).val(moment($(this).val(), 'D-M-YYYY-H-m').unix());
+                                                });
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                                <h3>In what servers will you be playing?</h3>
+                                <div class="input-group">
                                     <?php
                                     for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
                                         echo '<label class="checkbox-inline">';
@@ -109,10 +148,6 @@ if(isset($_SESSION['steamid'])){
     <?php echo FOOTER //This is defined in menu.php ?>
     </div>
 
-    <!-- jQuery -->
-    <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript">
     $( document ).ready(function() {
         //Tooltip opt-in

@@ -16,7 +16,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <div class="navbar-brand">NotA Stacks<span style="vertical-align: sub; font-size:50%;">ßeta</span></div>
+            <div class="navbar-brand">NotA Stacks<span style="vertical-align: sub; font-size:60%;">ßeta</span></div>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
