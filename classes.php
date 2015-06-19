@@ -155,7 +155,7 @@ class Stack{
 	public $time;
 
 	/**
-	 * @var string $server The server where the Stack will play.
+	 * @var string $server The servers where the Stack will play, separated by dashes ("-")
 	 */
 	public $server;
 
@@ -174,13 +174,14 @@ class Stack{
 	 * case, it will also send the created object to the database.
 	 *
 	 * The structure for the $data array is the following:
-	 * $arrayName = array('players' => $players, 'gamemode' => $gamemode, 'time' => $time, 'ownerid' => $ownerid), 'server' => $server;
+	 * $arrayName = array('players' => $players, 'gamemode' => $gamemode, 'time' => $time, 'ownerid' => $ownerid, 'server' => $server);
 	 *
 	 * @param string $source The source from where the method will get the data. It's either the row ID or "provided".
 	 * @param int $data An array containing the data. Optional. Needed if the first parameter is "provided".
 	 * @return void
 	 */
 	public function __construct($source, $data = array()){
+		global $mysqli;
 		if($source === "provided"){
 			//The information is provided
 			if(!isset($data['players']) OR !isset($data['gamemode']) OR !isset($data['time']) OR !isset($data['ownerid']) OR !isset($data['server'])) return;
@@ -192,7 +193,6 @@ class Stack{
 			}
 
 			//Store the data into the database
-			global $mysqli;
 			$mysqli->query("INSERT INTO stacks (`gamemode`, `time`, `ownerid`,`server`) VALUES ('".$mysqli->real_escape_string($data['gamemode'])."', '".$mysqli->real_escape_string($data['time'])."', '".$mysqli->real_escape_string($data['ownerid'])."', '".$mysqli->real_escape_string($data['server'])."');");
 
 			//Create the object
@@ -210,9 +210,36 @@ class Stack{
 			}
 			return;
 		}else{
-			//TODO implement this
+			$r = $mysqli->query("SELECT * FROM stacks WHERE id = ".$source);
+			$r = $r->fetch_assoc();
+
+			$r2 = $mysqli->query("SELECT * FROM stacks_players WHERE stack = ".$source);
+			for($i=0; $r3 = $r2->fetch_assoc(); $i++){ 
+				$players[$i] = new User('db', $r3['player']);
+			}
+
+			$this->id = $source;
+			$this->players = $players;
+			$this->gamemode = $r['gamemode'];
+			$this->time = $r['time'];
+			$this->ownerid = $r['ownerid'];
+			$this->server = $r['server'];
 			return;
 		}
+	}
+
+	/**
+	 * Adds a player to the stack, and updates the stack on the database
+	 *
+	 * @param User $player The user object that will be added to the stack.
+	 * @return boolean TRUE if the player is added successfully, FALSE if not.
+	 */
+	public function addPlayer($player){
+		global $mysqli;
+		if(!isset($player->id)) return FALSE;
+		$mysqli->query("INSERT INTO stacks_players (`stack`, `player`) VALUES ('".$mysqli->real_escape_string($this->id)."', '".$mysqli->real_escape_string($player->id)."');");
+		return TRUE;
+
 	}
 }	
 ?>

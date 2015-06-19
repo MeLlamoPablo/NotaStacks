@@ -27,8 +27,50 @@ if(isset($_SESSION['steamid'])){
 
 }
 
-//TODO add submit to create stack and handle it
+//If the user has created a stack, handle it.
+if(isset($_POST['createStackButton'])){
+    if(!isset($_POST['gamemode'])) die('The gamemode information was not sent correctly. You shouldn\'t be seeing this error, though. Blame /u/sfcpfc for his incompetence. Or maybe upgrade to a browser that supports HTML5, you lazy.');
+    $gamemode = $mysqli->real_escape_string($_POST['gamemode']);
 
+    if(!isset($_POST['timePicker'])) die('The time information was not sent correctly. You shouldn\'t be seeing this error, though. Blame /u/sfcpfc for his incompetence. Or maybe upgrade to a browser that supports HTML5, you lazy.');
+    $time = $mysqli->real_escape_string($_POST['timePicker']);
+
+    $servers['string'] = '';
+    for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
+        if(isset($_POST[$GLOBAL_CONFIG['servers'][$i]])){
+            $servers[$GLOBAL_CONFIG['servers'][$i]] = TRUE;
+            $servers['string'] .= '-'.$GLOBAL_CONFIG['servers'][$i];
+        }else{
+            $servers[$GLOBAL_CONFIG['servers'][$i]] = FALSE;
+        }
+    }
+    $servers['string'] = substr($servers['string'], 1);
+
+    //TODO there might be a better way of doing this
+    function atLeastOneOfTheServersIsTrue($servers){
+        global $GLOBAL_CONFIG;
+        for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
+           if($servers[$GLOBAL_CONFIG['servers'][$i]] === TRUE) return TRUE;
+        }
+        return FALSE;
+    }
+
+    //If the user hasn't selected any server, stop the handle and output him an error.
+    //Else, continue with the handle
+    if(!atLeastOneOfTheServersIsTrue($servers)){
+        $error = 'noServerSelected';
+    }else{
+        $createdStack = new Stack('provided', array(
+            'players' => array($loggedUser),
+            'gamemode' => $gamemode,
+            'time' => $time,
+            'ownerid' => $loggedUser->id,
+            'server' => $servers['string']));
+    }
+
+}
+
+if(!isset($error)) $error = 'none';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,18 +116,18 @@ if(isset($_SESSION['steamid'])){
             <!-- Modal -->
             <div class="modal fade" id="addStack" tabindex="-1" role="dialog" aria-labelledby="addStack">
                 <div class="modal-dialog" role="document">
-                    <div class="modal-content"><form action="index.php" method="POST">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Create a new Stack</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p>Here you can create a Stack so that you can gather players and play with them!</p>
-                            
+                    <div class="modal-content">
+                        <form action="index.php" method="POST">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Create a new Stack</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>Here you can create a Stack so that you can gather players and play with them!</p>
                                 <h3>What will you be playing?</h3>
                                 <div class="input-group">
                                     <span class="input-group-addon" id="gamemodeLabel">Kind of games</span>
-                                    <input type="text" class="form-control" placeholder="e.g: &#34;Tryhard captains mode&#34; or &#34;Custom games&#34;" name="gamemode" aria-describedby="gamemodeLabel">
+                                    <input type="text" class="form-control" placeholder="e.g: &#34;Tryhard captains mode&#34; or &#34;Custom games&#34;" id="gamemode" name="gamemode" aria-describedby="gamemodeLabel" required="required">
                                 </div>
                                 <h3>When will you be playing?</h3>
                                 <div class="input-group">
@@ -94,7 +136,7 @@ if(isset($_SESSION['steamid'])){
                                             <div class="form-group">
                                                 <div class="row">
                                                     <div class="col-md-8">
-                                                        <input type="hidden" id="timePicker">
+                                                        <input type="hidden" id="timePicker" name="timePicker">
                                                     </div>
                                                 </div>
                                             </div>
@@ -120,6 +162,7 @@ if(isset($_SESSION['steamid'])){
                                         </script>
                                     </div>
                                 </div>
+                                <?php if ($error === 'noServerSelected') echo '<div class="alert alert-danger" role="alert">You need to select at least one server.</div>'; ?>
                                 <h3>In what servers will you be playing?</h3>
                                 <div class="input-group">
                                     <?php
@@ -130,12 +173,12 @@ if(isset($_SESSION['steamid'])){
                                     }
                                     ?>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Create the stack</button>
-                        </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="submit" name="createStackButton" class="btn btn-primary">Create the stack</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -155,6 +198,15 @@ if(isset($_SESSION['steamid'])){
             $('[data-show="tooltip"]').tooltip()
             //We use "data-show" instead of "data-toggle" so a button can have a tooltip and trigger a modal at once
         })
+        
+        <?php
+        //If there was an error, automatically call the modal and fill the blanks
+        if($error === 'noServerSelected'){
+            echo "$('#addStack').modal();\n";
+            echo "$('#gamemode').val('".$gamemode."');\n";
+        }
+        ?>
+
     });
     </script>
 </body>
