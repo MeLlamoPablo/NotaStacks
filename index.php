@@ -71,6 +71,10 @@ if(isset($_POST['createStackButton'])){
 }
 
 if(!isset($error)) $error = 'none';
+
+/*$stackerino = new Stack(2);
+$playerino = new User('db', 5);
+$stackerino->addPlayer($playerino);*/
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -107,84 +111,139 @@ if(!isset($error)) $error = 'none';
         </div>
     <?php else: //!isset($loggedUser)) 
     //Stack dashboard?>
-        <div class="well well-sm col-sm-4 btn-group container center-block">
-            <!-- Add stack modal trigger -->
-            <button type="button" class="btn btn-default" aria-label="Create Stack" data-show="tooltip" data-placement="bottom" title="Create a new stack" data-toggle="modal" data-target="#addStack">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-            </button>
+        <div class="row">
+            <div class="well well-sm col-sm-4 btn-group container center-block">
+                <!-- Add stack modal trigger -->
+                <button type="button" class="btn btn-default" aria-label="Create Stack" data-show="tooltip" data-placement="bottom" title="Create a new stack" data-toggle="modal" data-target="#addStack">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                </button>
 
-            <!-- Modal -->
-            <div class="modal fade" id="addStack" tabindex="-1" role="dialog" aria-labelledby="addStack">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form action="index.php" method="POST">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel">Create a new Stack</h4>
-                            </div>
-                            <div class="modal-body">
-                                <p>Here you can create a Stack so that you can gather players and play with them!</p>
-                                <h3>What will you be playing?</h3>
-                                <div class="input-group">
-                                    <span class="input-group-addon" id="gamemodeLabel">Kind of games</span>
-                                    <input type="text" class="form-control" placeholder="e.g: &#34;Tryhard captains mode&#34; or &#34;Custom games&#34;" id="gamemode" name="gamemode" aria-describedby="gamemodeLabel" required="required">
+                <!-- Modal -->
+                <div class="modal fade" id="addStack" tabindex="-1" role="dialog" aria-labelledby="addStack">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form action="index.php" method="POST">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">Create a new Stack</h4>
                                 </div>
-                                <h3>When will you be playing?</h3>
-                                <div class="input-group">
-                                    <div class="container">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <div class="row">
-                                                    <div class="col-md-8">
-                                                        <input type="hidden" id="timePicker" name="timePicker">
+                                <div class="modal-body">
+                                    <p>Here you can create a Stack so that you can gather players and play with them!</p>
+                                    <h3>What will you be playing?</h3>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" id="gamemodeLabel">Kind of games</span>
+                                        <input type="text" class="form-control" placeholder="e.g: &#34;Tryhard captains mode&#34; or &#34;Custom games&#34;" id="gamemode" name="gamemode" aria-describedby="gamemodeLabel" required="required">
+                                    </div>
+                                    <h3>When will you be playing?</h3>
+                                    <div class="input-group">
+                                        <div class="container">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <div class="col-md-8">
+                                                            <input type="hidden" id="timePicker" name="timePicker">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <script type="text/javascript">
+                                                $(function () {
+                                                    $('#timePicker').datetimepicker({
+                                                        inline: true,
+                                                        sideBySide: true,
+                                                        format: 'D-M-YYYY-H-m'
+                                                    });
+                                                    //Convert the user input to an unix timestamp, then set it as the input value.
+
+                                                    //We do this for avoiding problems with timezones.
+                                                    //Time should be stored in the server as an unix timestamp, then converted client-side with moment.js
+
+                                                    //The operation is performed once after the timePicker is created, and every time it's modified
+                                                    $('#timePicker').val(moment($('#timePicker').val(), 'D-M-YYYY-H-m').unix());
+                                                    $('#timePicker').on('dp.change', function(){
+                                                        $(this).val(moment($(this).val(), 'D-M-YYYY-H-m').unix());
+                                                    });
+                                                });
+                                            </script>
                                         </div>
-                                        <script type="text/javascript">
-                                            $(function () {
-                                                $('#timePicker').datetimepicker({
-                                                    inline: true,
-                                                    sideBySide: true,
-                                                    format: 'D-M-YYYY-H-m'
-                                                });
-                                                //Convert the user input to an unix timestamp, then set it as the input value.
-
-                                                //We do this for avoiding problems with timezones.
-                                                //Time should be stored in the server as an unix timestamp, then converted client-side with moment.js
-
-                                                //The operation is performed once after the timePicker is created, and every time it's modified
-                                                $('#timePicker').val(moment($('#timePicker').val(), 'D-M-YYYY-H-m').unix());
-                                                $('#timePicker').on('dp.change', function(){
-                                                    $(this).val(moment($(this).val(), 'D-M-YYYY-H-m').unix());
-                                                });
-                                            });
-                                        </script>
+                                    </div>
+                                    <?php if ($error === 'noServerSelected') echo '<div class="alert alert-danger" role="alert">You need to select at least one server.</div>'; ?>
+                                    <h3>In what servers will you be playing?</h3>
+                                    <div class="input-group">
+                                        <?php
+                                        for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
+                                            echo '<label class="checkbox-inline">';
+                                                echo '<input type="checkbox" id="'.$GLOBAL_CONFIG['servers'][$i].'check" name="'.$GLOBAL_CONFIG['servers'][$i].'" value="'.$GLOBAL_CONFIG['servers'][$i].'"> '.$GLOBAL_CONFIG['servers'][$i];
+                                            echo '</label>';
+                                        }
+                                        ?>
                                     </div>
                                 </div>
-                                <?php if ($error === 'noServerSelected') echo '<div class="alert alert-danger" role="alert">You need to select at least one server.</div>'; ?>
-                                <h3>In what servers will you be playing?</h3>
-                                <div class="input-group">
-                                    <?php
-                                    for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
-                                        echo '<label class="checkbox-inline">';
-                                            echo '<input type="checkbox" id="'.$GLOBAL_CONFIG['servers'][$i].'check" name="'.$GLOBAL_CONFIG['servers'][$i].'" value="'.$GLOBAL_CONFIG['servers'][$i].'"> '.$GLOBAL_CONFIG['servers'][$i];
-                                        echo '</label>';
-                                    }
-                                    ?>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="submit" name="createStackButton" class="btn btn-primary">Create the stack</button>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="submit" name="createStackButton" class="btn btn-primary">Create the stack</button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="well well-sm col-sm-8 btn-group container center-block">
-            <p>Filter stacks:</p>
+            <div class="well well-sm col-sm-8 btn-group container center-block">
+                <p>Filter stacks:</p>
+            </div>
+        </div><!--/class="row"-->
+        <div class="row">
+            <?php //Get the stacks and output them
+            
+            $r = $mysqli->query("SELECT id FROM stacks WHERE time > ".time());
+            for($i=1; $r2 = $r->fetch_assoc(); $i++){ //$i = 1; instead of $i = 0 because the row ID begins in 1
+                $stacks[$i] = new Stack($i);
+
+                //Panel
+                echo '<div class="col-sm-4" class="stack" id="stack'.$stacks[$i]->id.'">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">'.$stacks[$i]->gamemode.'</h3>
+                            </div>
+                            <div class="panel-body">';
+                                //List players
+                                for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
+                                    echo '<img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="64" height="64" />';
+                                }
+
+                                //Output time
+                                echo '<p>In <span id="timeForStack'.$stacks[$i]->id.'"></span> (that\'s <span id="timeRemainingForStack'.$stacks[$i]->id.'"></span>)!</p>';
+                                echo "<script type=\"text/javascript\">
+                                    var stacktime = moment('".$stacks[$i]->time."', 'X');
+                                    $('#timeForStack".$stacks[$i]->id."').html(stacktime.format('LLLL'));
+                                    $('#timeRemainingForStack".$stacks[$i]->id."').html(stacktime.fromNow());
+                                </script>";
+
+                                //Output servers
+                                $stackServers = explode('-', $stacks[$i]->server);
+                                $totalServers = count($stackServers);
+                                echo '<p>The stack will play in ';
+                                for($i2=0; $i2 < $totalServers; $i2++){ 
+                                    echo $stackServers[$i2];
+                                    //If there's more than one server, we'll need to add commas (",") and "or"
+                                    if($totalServers > 1){
+                                        //Add a comma on every server but the last one
+                                        if(($i2+1) !== $totalServers) echo ', ';
+                                        //Add "or" before the last one
+                                        if(($i2+2) === $totalServers) echo 'or ';
+
+                                    }
+                                }
+                                echo '</p>';
+                            echo '</div>
+                        </div>
+                    </div>';
+
+                    //Modal
+                    //TODO add modal
+            }
+
+            ?>
         </div>
     <?php endif; //!isset($loggedUser)) ?>
 

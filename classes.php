@@ -214,11 +214,11 @@ class Stack{
 			$r = $r->fetch_assoc();
 
 			$r2 = $mysqli->query("SELECT * FROM stacks_players WHERE stack = ".$source);
-			for($i=0; $r3 = $r2->fetch_assoc(); $i++){ 
+			for($i=0; $r3 = $r2->fetch_assoc(); $i++){
 				$players[$i] = new User('db', $r3['player']);
 			}
 
-			$this->id = $source;
+			$this->id = $r['id'];
 			$this->players = $players;
 			$this->gamemode = $r['gamemode'];
 			$this->time = $r['time'];
