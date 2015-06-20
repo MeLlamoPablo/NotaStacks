@@ -94,6 +94,18 @@ $stackerino->addPlayer($playerino);*/
     <script type="text/javascript" src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+    <!-- JS functions -->
+    <script type="text/javascript">
+    //Hides the elements that have every server property set to hidden or false (that's the same as checking if data-%server%!=true)
+    function hideNotTrue(){
+        var selector = '<?php 
+            for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){
+                echo '[data-'.$GLOBAL_CONFIG['servers'][$i].'!="TRUE"]';
+            }
+        ?>';
+        $('.stack'+selector).css("display", "none");
+    }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -189,19 +201,68 @@ $stackerino->addPlayer($playerino);*/
                 </div>
             </div>
             <div class="well well-sm col-sm-8 btn-group container center-block">
-                <p>Filter stacks:</p>
+                <?php
+
+                for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){
+                    //Code
+                    echo '<button id="toggle'.$GLOBAL_CONFIG['servers'][$i].'" type="button" class="btn btn-default active" aria-label="Show/hide '.$GLOBAL_CONFIG['servers'][$i].'" data-show="tooltip" data-placement="bottom" title="Show/hide stacks that only play on '.$GLOBAL_CONFIG['servers'][$i].'">
+                        '.$GLOBAL_CONFIG['servers'][$i].'
+                    </button>';
+                    //Script
+                    echo '<script type="text/javascript">';
+                        echo '$("#toggle'.$GLOBAL_CONFIG['servers'][$i].'").click(function(){
+                                if($(this).hasClass("active")){ //If the server is being shown
+                                    //Change the attribute to "HIDDEN". "HIDDEN" works the same way as "FALSE", but it can be recovered
+                                    $(".stack[data-'.$GLOBAL_CONFIG['servers'][$i].'=\'TRUE\']").attr("data-'.$GLOBAL_CONFIG['servers'][$i].'", "HIDDEN");
+                                    //"Un-press" the button
+                                    $(this).removeClass("active");
+                                    //Make the button lose focus
+                                    $(this).blur();
+                                    //Hide the stacks whose every data-%server% is either FALSE or HIDDEN
+                                    hideNotTrue();
+                                }else{
+                                    //Display the items whose data-'.$GLOBAL_CONFIG['servers'][$i].' is HIDDEN and change its attribute to "TRUE"
+                                    $(".stack[data-'.$GLOBAL_CONFIG['servers'][$i].'=\'HIDDEN\']").css("display", "inline");
+                                    $(".stack[data-'.$GLOBAL_CONFIG['servers'][$i].'=\'HIDDEN\']").attr("data-'.$GLOBAL_CONFIG['servers'][$i].'", "TRUE");
+                                    //"Press" the button
+                                    $(this).addClass("active");
+                                    //Make the button lose focus
+                                    $(this).blur();
+                                }
+                            });';
+                    echo '</script>';
+                }
+
+                ?>
             </div>
         </div><!--/class="row"-->
-        <div class="row">
+        <div class="row stackContainter">
             <?php //Get the stacks and output them
             
             $r = $mysqli->query("SELECT id FROM stacks WHERE time > ".time());
             for($i=1; $r2 = $r->fetch_assoc(); $i++){ //$i = 1; instead of $i = 0 because the row ID begins in 1
-                $stacks[$i] = new Stack($i);
+                $stacks[$i] = new Stack($r2['id']);
 
                 //Panel
-                echo '<div class="col-sm-4" class="stack" id="stack'.$stacks[$i]->id.'">
-                        <div class="panel panel-default">
+                echo '<div class="stack col-sm-4" id="stack'.$stacks[$i]->id.'" data-time="'.$stacks[$i]->time.'"';
+                    //Add the server data into the div
+                    //data-%server% can be:
+                        //TRUE - the stack will play on that server
+                        //FALSE - the stack won't play on that server
+                        //HIDDEN - the stack will play on that server, but the user doesn't want to show stacks that only play on that server
+                    $stackServers = explode('-', $stacks[$i]->server);
+                    $totalServers = count($stackServers);
+                    for($i2=0; isset($GLOBAL_CONFIG['servers'][$i2]); $i2++){ 
+                        echo ' data-'.$GLOBAL_CONFIG['servers'][$i2].'="';
+                        if(in_array($GLOBAL_CONFIG['servers'][$i2], $stackServers)){
+                            echo 'TRUE';
+                        }else{
+                            echo 'FALSE';
+                        }
+                        echo '"';
+                    }
+                echo '">'. //add style="display: none;" for hiding
+                        '<div class="panel panel-default">
                             <div class="panel-heading">
                                 <h3 class="panel-title">'.$stacks[$i]->gamemode.'</h3>
                             </div>
@@ -212,7 +273,7 @@ $stackerino->addPlayer($playerino);*/
                                 }
 
                                 //Output time
-                                echo '<p>In <span id="timeForStack'.$stacks[$i]->id.'"></span> (that\'s <span id="timeRemainingForStack'.$stacks[$i]->id.'"></span>)!</p>';
+                                echo '<p>In <span id="timeForStack'.$stacks[$i]->id.'"></span> (that\'s <span id="timeRemainingForStack'.$stacks[$i]->id.'"></span>!)</p>';
                                 echo "<script type=\"text/javascript\">
                                     var stacktime = moment('".$stacks[$i]->time."', 'X');
                                     $('#timeForStack".$stacks[$i]->id."').html(stacktime.format('LLLL'));
@@ -220,8 +281,6 @@ $stackerino->addPlayer($playerino);*/
                                 </script>";
 
                                 //Output servers
-                                $stackServers = explode('-', $stacks[$i]->server);
-                                $totalServers = count($stackServers);
                                 echo '<p>The stack will play in ';
                                 for($i2=0; $i2 < $totalServers; $i2++){ 
                                     echo $stackServers[$i2];
@@ -257,9 +316,26 @@ $stackerino->addPlayer($playerino);*/
             $('[data-show="tooltip"]').tooltip()
             //We use "data-show" instead of "data-toggle" so a button can have a tooltip and trigger a modal at once
         })
+
+        //Sort stacks by time
+        $('.stackContainter').html(sortStacks('.stack', 'data-time', true));
+        //Thanks to http://blog.troygrosfield.com/2014/04/25/jquery-sorting/
+        function sortStacks(selector, attrName, lowToHi) {
+            return $($(selector).toArray().sort(function(a, b){
+                var aVal = parseInt(a.getAttribute(attrName)),
+                    bVal = parseInt(b.getAttribute(attrName));
+                if(lowToHi){
+                    return aVal - bVal;
+                }else{
+                    return bVal - aVal;
+                }
+            }));
+        }
+
+        
         
         <?php
-        //If there was an error, automatically call the modal and fill the blanks
+        //If there was an error upon creating a stack, automatically call the modal and fill the blanks
         if($error === 'noServerSelected'){
             echo "$('#addStack').modal();\n";
             echo "$('#gamemode').val('".$gamemode."');\n";

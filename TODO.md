@@ -4,5 +4,4 @@
 * Credit eonasdan-bootstrap-datetimepicker
 * Link source code
 
-* Stack filtering
-* Stack sorting
+* Improve sorting
