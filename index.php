@@ -70,11 +70,21 @@ if(isset($_POST['createStackButton'])){
 
 }
 
-if(!isset($error)) $error = 'none';
+//If the player has joined a stack
+if(isset($_GET['joinStack'])){
+    $stack = new Stack($_GET['joinStack']);
+    //If the stack is not full
+    if(!isset($stack->players) OR (count($stack->players) === 5)) die('The stack is full');
 
-/*$stackerino = new Stack(2);
-$playerino = new User('db', 5);
-$stackerino->addPlayer($playerino);*/
+    //TODO prevent user for joining a stack where he is
+
+    //Add the player
+    $stack->addPlayer($loggedUser);
+    die('<meta http-equiv="refresh" content="0; url=index.php" />'); //We redirect the user so that we get rid of ?joinStack, thus, the user can refresh without being prompted an error.
+
+}
+
+if(!isset($error)) $error = 'none';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -200,7 +210,8 @@ $stackerino->addPlayer($playerino);*/
                     </div>
                 </div>
             </div>
-            <div class="well well-sm col-sm-8 btn-group container center-block">
+            <div class="well well-sm col-sm-8 container center-block">
+                <div class="btn-group">
                 <?php
 
                 for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){
@@ -234,6 +245,7 @@ $stackerino->addPlayer($playerino);*/
                 }
 
                 ?>
+            </div><!-- /.btn-group -->
             </div>
         </div><!--/class="row"-->
         <div class="row stackContainter">
@@ -261,16 +273,60 @@ $stackerino->addPlayer($playerino);*/
                         }
                         echo '"';
                     }
-                echo '">'. //add style="display: none;" for hiding
-                        '<div class="panel panel-default">
+
+                    //Add the player data into the div
+                    echo ' data-players="'.count($stacks[$i]->players).'"';
+                echo ' data-toggle="modal" data-target="joinStack'.$stacks[$i]->id.'">
+                        <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h3 class="panel-title">'.$stacks[$i]->gamemode.'</h3>
+                                <h3 class="panel-title">#'.$stacks[$i]->id.' - '.$stacks[$i]->gamemode.'</h3>
                             </div>
                             <div class="panel-body">';
                                 //List players
-                                for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
-                                    echo '<img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="64" height="64" />';
-                                }
+                                    echo '<div class="playerContainer">';
+                                    for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
+                                        echo '<img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="64" height="64" />';
+                                    }
+
+                                    //If there are less than 5 players, show join buttons
+                                    if($i2 !== 5){
+                                        for($i3=0; $i3 < (5 - $i2); $i3++){ 
+                                            echo '<button class="btn btn-info joinStack'.$stacks[$i]->id.'" style="width: 64px; height: 64px;" data-show="tooltip" title="Join the stack" data-toggle="modal" data-target="#modalJoinStack'.$stacks[$i]->id.'">
+                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                            </button>';
+                                        }
+
+                                        echo '<div class="modal fade" id="modalJoinStack'.$stacks[$i]->id.'" tabindex="-1" role="dialog" aria-labelledby="modalJoinStack'.$stacks[$i]->id.'Label">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                            <h4 class="modal-title" id="modalJoinStack'.$stacks[$i]->id.'Label">Join stack #'.$stacks[$i]->id.'?</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            ';
+                                                                echo '<p>You will be matched with the following players:</p>
+                                                                <table class="table table-bordered table-striped">
+                                                                    <tbody>';
+                                                                        for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
+                                                                            echo '<tr>';
+                                                                                echo '<td style="width:11%;"><img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="48" height="48" /></td>';
+                                                                                echo '<td><a href="'.$stacks[$i]->players[$i2]->getURL().'" target="_blank">'.$stacks[$i]->players[$i2]->name.'</a></td>';
+                                                                            echo '</tr>';
+                                                                        }
+                                                                    echo '</tbody>
+                                                                </table>';
+                                                            echo '<p>Please, be friendly and respectful towards them, and try not to be late. Have fun!</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                            <button type="button" onclick="window.location.href=\'index.php?joinStack='.$stacks[$i]->id.'\';" class="btn btn-primary">Join the stack</button>
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div><!-- /.modal -->';
+                                echo '</div>';
+                                    }
 
                                 //Output time
                                 echo '<p>In <span id="timeForStack'.$stacks[$i]->id.'"></span> (that\'s <span id="timeRemainingForStack'.$stacks[$i]->id.'"></span>!)</p>';
@@ -297,11 +353,7 @@ $stackerino->addPlayer($playerino);*/
                             echo '</div>
                         </div>
                     </div>';
-
-                    //Modal
-                    //TODO add modal
             }
-
             ?>
         </div>
     <?php endif; //!isset($loggedUser)) ?>

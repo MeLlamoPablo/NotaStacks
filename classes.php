@@ -119,7 +119,7 @@ class User{
 	 *
 	 * @return string The user's profile's URL
 	 */
-	public function toURL(){
+	public function getURL(){
 		return 'http://steamcommunity.com/profiles/'.$this->steamid;
 	}
 }
