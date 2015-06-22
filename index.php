@@ -74,12 +74,21 @@ if(isset($_POST['createStackButton'])){
 if(isset($_GET['joinStack'])){
     $stack = new Stack($_GET['joinStack']);
     //If the stack is not full
-    if(!isset($stack->players) OR (count($stack->players) === 5)) die('The stack is full');
+    if(!isset($stack->players) OR (count($stack->players) === 5)) die('The stack is full<meta http-equiv="refresh" content="3; url=index.php" />');
 
-    //TODO prevent user for joining a stack where he is
+    //Prevent the user for joining a stack where he already is
+    if(in_array($loggedUser, $stack->players)) die('You\'ve already joined this stack.<meta http-equiv="refresh" content="3; url=index.php" />');
 
     //Add the player
     $stack->addPlayer($loggedUser);
+    die('<meta http-equiv="refresh" content="0; url=index.php" />'); //We redirect the user so that we get rid of ?joinStack, thus, the user can refresh without being prompted an error.
+
+}
+
+//If the player has left a stack
+if(isset($_GET['leaveStack'])){
+    $stack = new Stack($_GET['leaveStack']);
+    $stack->removePlayer($loggedUser);
     die('<meta http-equiv="refresh" content="0; url=index.php" />'); //We redirect the user so that we get rid of ?joinStack, thus, the user can refresh without being prompted an error.
 
 }
@@ -104,6 +113,7 @@ if(!isset($error)) $error = 'none';
     <script type="text/javascript" src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" href="resources/custom.css" />
     <!-- JS functions -->
     <script type="text/javascript">
     //Hides the elements that have every server property set to hidden or false (that's the same as checking if data-%server%!=true)
@@ -133,7 +143,12 @@ if(!isset($error)) $error = 'none';
         </div>
     <?php else: //!isset($loggedUser)) 
     //Stack dashboard?>
+        <div id="joinedStacksRow" class="row">
+            <h3>Joined Stacks:</h3>
+            <div id="joinedStacks" class=""></div>
+        </div>
         <div class="row">
+            <h3>Available Stacks:</h3>
             <div class="well well-sm col-sm-4 btn-group container center-block">
                 <!-- Add stack modal trigger -->
                 <button type="button" class="btn btn-default" aria-label="Create Stack" data-show="tooltip" data-placement="bottom" title="Create a new stack" data-toggle="modal" data-target="#addStack">
@@ -254,6 +269,8 @@ if(!isset($error)) $error = 'none';
             $r = $mysqli->query("SELECT id FROM stacks WHERE time > ".time());
             for($i=1; $r2 = $r->fetch_assoc(); $i++){ //$i = 1; instead of $i = 0 because the row ID begins in 1
                 $stacks[$i] = new Stack($r2['id']);
+                //Does the user belongs to the stack?
+                $userBelongsToStack = (in_array($loggedUser, $stacks[$i]->players) ? TRUE : FALSE);   
 
                 //Panel
                 echo '<div class="stack col-sm-4" id="stack'.$stacks[$i]->id.'" data-time="'.$stacks[$i]->time.'"';
@@ -276,11 +293,23 @@ if(!isset($error)) $error = 'none';
 
                     //Add the player data into the div
                     echo ' data-players="'.count($stacks[$i]->players).'"';
+                    echo ' data-userBelongsToStack="';if($userBelongsToStack){echo 'TRUE';}else{echo 'FALSE';}echo '"';
                 echo ' data-toggle="modal" data-target="joinStack'.$stacks[$i]->id.'">
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h3 class="panel-title">#'.$stacks[$i]->id.' - '.$stacks[$i]->gamemode.'</h3>
-                            </div>
+                                <h3 class="panel-title">#'.$stacks[$i]->id.' - '.$stacks[$i]->gamemode.'';
+                                //If the user belongs to the stack, show button to leave
+                                if($userBelongsToStack){ echo '<button id="leaveStack'.$stacks[$i]->id.'" type="button" class="btn btn-danger btn-xs" style="float:right;">Leave stack</button>';
+                                    echo '<script type="text/javascript">
+                                            $("#leaveStack'.$stacks[$i]->id.'").click(function(){
+                                                var confirmDialog = confirm("Are you sure you want to leave stack #'.$stacks[$i]->id.'?");
+                                                if(confirmDialog){
+                                                    window.location.replace("index.php?leaveStack='.$stacks[$i]->id.'");
+                                                }
+                                            });
+                                        </script>';
+                                }
+                            echo '</h3></div>
                             <div class="panel-body">';
                                 //List players
                                     echo '<div class="playerContainer">';
@@ -290,13 +319,49 @@ if(!isset($error)) $error = 'none';
 
                                     //If there are less than 5 players, show join buttons
                                     if($i2 !== 5){
-                                        for($i3=0; $i3 < (5 - $i2); $i3++){ 
-                                            echo '<button class="btn btn-info joinStack'.$stacks[$i]->id.'" style="width: 64px; height: 64px;" data-show="tooltip" title="Join the stack" data-toggle="modal" data-target="#modalJoinStack'.$stacks[$i]->id.'">
+                                        if($userBelongsToStack){
+                                            //If the player is already in the stack, show "looking for players" buttons
+                                            for($i3=0; $i3 < (5 - $i2); $i3++){ 
+                                                echo '<button class="btn btn-default invitetoStack'.$stacks[$i]->id.'" style="width: 64px; height: 64px;" data-show="tooltip" title="Looking for players. Click to invite your friends!" data-toggle="modal" data-target="#modalInvitetoStack'.$stacks[$i]->id.'">
+                                                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                            </button>';
+                                            }
+                                            echo '<div class="modal fade" id="modalInvitetoStack'.$stacks[$i]->id.'" tabindex="-1" role="dialog" aria-labelledby="modalInvitetoStack'.$stacks[$i]->id.'Label">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                            <h4 class="modal-title" id="modalInvitetoStack'.$stacks[$i]->id.'Label">Invite firends to Stack #'.$stacks[$i]->id.'</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            ';
+                                                                echo '<p>Hey there, this feature isn\'t implemented yet, but soon&#8482; you\'ll be able to give a link to your firends and invite them.</p>
+                                                                <p>The following players have already joined the stack:</p>
+                                                                <table class="table table-bordered table-striped">
+                                                                    <tbody>';
+                                                                        for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
+                                                                            echo '<tr>';
+                                                                                echo '<td style="width:11%;"><img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="48" height="48" /></td>';
+                                                                                echo '<td><a href="'.$stacks[$i]->players[$i2]->getURL().'" target="_blank">'.$stacks[$i]->players[$i2]->name.'</a></td>';
+                                                                            echo '</tr>';
+                                                                        }
+                                                                    echo '</tbody>
+                                                                </table>';
+                                                            echo '</div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div><!-- /.modal -->';
+                                        }else{
+                                            //If the player isn't in the stack yet, show join buttons
+                                            for($i3=0; $i3 < (5 - $i2); $i3++){ 
+                                                echo '<button class="btn btn-info joinStack'.$stacks[$i]->id.'" style="width: 64px; height: 64px;" data-show="tooltip" title="Join the stack" data-toggle="modal" data-target="#modalJoinStack'.$stacks[$i]->id.'">
                                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                                             </button>';
-                                        }
-
-                                        echo '<div class="modal fade" id="modalJoinStack'.$stacks[$i]->id.'" tabindex="-1" role="dialog" aria-labelledby="modalJoinStack'.$stacks[$i]->id.'Label">
+                                            }
+                                            echo '<div class="modal fade" id="modalJoinStack'.$stacks[$i]->id.'" tabindex="-1" role="dialog" aria-labelledby="modalJoinStack'.$stacks[$i]->id.'Label">
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -325,7 +390,8 @@ if(!isset($error)) $error = 'none';
                                                     </div><!-- /.modal-content -->
                                                 </div><!-- /.modal-dialog -->
                                             </div><!-- /.modal -->';
-                                echo '</div>';
+                                        }
+                                    echo '</div>';
                                     }
 
                                 //Output time
@@ -384,7 +450,12 @@ if(!isset($error)) $error = 'none';
             }));
         }
 
-        
+        //Move stacks where the player belongs into #joinedStacks
+        $('.stack[data-userBelongsToStack="TRUE"]').appendTo('#joinedStacks');
+        //If there aren't joined stacks, remove the div
+        if(!$('#joinedStacks > .stack').length){
+            $('#joinedStacksRow').remove();
+        }
         
         <?php
         //If there was an error upon creating a stack, automatically call the modal and fill the blanks

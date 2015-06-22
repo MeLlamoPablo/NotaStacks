@@ -1,0 +1,8 @@
+/* Fix for this issue: https://github.com/Eonasdan/bootstrap-datetimepicker/issues/1049 */
+
+.timepicker{
+	min-width: 228px;
+}
+.datepicker{
+	min-width: 240px;
+}

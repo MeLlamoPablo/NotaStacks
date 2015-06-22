@@ -29,9 +29,13 @@ class User{
 	public $avatar;
 
 	/**
-	 * @var DateTime $lastRefresh The last time the user refreshed his data from Steam
+	 * @var int $lastRefresh The last time the user refreshed his data from Steam, in Unix timestamp
 	 */
 	public $lastRefresh;
+
+	/**
+	 * @var int|string $ban If the user is banned, the time when the ban will expire in Unix timestamp, or string "permanent" for a permaban. If the user isn't banned, int "0".
+	 */
 
 	/**
 	 * Creates the user object.
@@ -63,6 +67,7 @@ class User{
 				$this->name = $r['name'];
 				$this->avatar = $r['avatar'];
 				$this->lastRefresh = $r['lastRefresh'];
+				$this->ban = $r['ban'];
 
 				return;
 
@@ -176,7 +181,7 @@ class Stack{
 	 * The structure for the $data array is the following:
 	 * $arrayName = array('players' => $players, 'gamemode' => $gamemode, 'time' => $time, 'ownerid' => $ownerid, 'server' => $server);
 	 *
-	 * @param string $source The source from where the method will get the data. It's either the row ID or "provided".
+	 * @param int|string $source The source from where the method will get the data. It's either the row ID or "provided".
 	 * @param int $data An array containing the data. Optional. Needed if the first parameter is "provided".
 	 * @return void
 	 */
@@ -238,6 +243,22 @@ class Stack{
 		global $mysqli;
 		if(!isset($player->id)) return FALSE;
 		$mysqli->query("INSERT INTO stacks_players (`stack`, `player`) VALUES ('".$mysqli->real_escape_string($this->id)."', '".$mysqli->real_escape_string($player->id)."');");
+		return TRUE;
+
+	}
+
+	/**
+	 * Removes a player from the stack, and updates the stack on the database
+	 *
+	 * @param User $player The user object that will be removed from the stack. Needles to say, it must belong to it.
+	 * @return boolean TRUE if the player is added successfully, FALSE if not.
+	 */
+	public function removePlayer($player){
+		global $mysqli;
+		if(!isset($player->id)) return FALSE;
+		//Check if the player is already in the stack
+		if(!in_array($player, $this->players)) return FALSE;
+		$mysqli->query("DELETE FROM stacks_players WHERE player = ".$mysqli->real_escape_string($player->id)." AND stack = ".$mysqli->real_escape_string($this->id));
 		return TRUE;
 
 	}
