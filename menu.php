@@ -1,6 +1,6 @@
 <?php
 //Ban hammer handle
-if($loggedUser->ban !== '0'){
+if(isset($loggedUser) AND $loggedUser->ban !== '0'){
     if($loggedUser->ban === 'permanent'){
         $modal = new Modal('banHammer', 'You have been banned forever', 'Please contact '.$GLOBAL_CONFIG['owner'].' if you think this is a mistake.');
         echo $modal->getModal(TRUE);
