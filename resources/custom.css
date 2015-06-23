@@ -1,3 +1,8 @@
+/* Fix for fixed navbars */
+body {
+  margin-top: 40px;
+}
+
 /* Fix for this issue: https://github.com/Eonasdan/bootstrap-datetimepicker/issues/1049 */
 
 .timepicker{
@@ -7,11 +12,6 @@
 	min-width: 240px;
 }
 
-html,
-body {
-  height: 100%;
-  /* The html and body elements cannot have any padding or margin. */
-}
 
 /*Fix for this issue: http://stackoverflow.com/questions/19070813/bootstrap-3-and-sticky-footer */
 
@@ -28,6 +28,6 @@ body {
 
 /* Set the fixed height of the footer here */
 #footer {
-  height: 60px;
+  height: 50px;
   background-color: #f5f5f5;
 }

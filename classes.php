@@ -34,8 +34,14 @@ class User{
 	public $lastRefresh;
 
 	/**
-	 * @var int|string $ban If the user is banned, the time when the ban will expire in Unix timestamp, or string "permanent" for a permaban. If the user isn't banned, int "0".
+	 * @var string $ban If the user is banned, the time when the ban will expire in Unix timestamp (converted to string), or string "permanent" for a permaban. If the user isn't banned, int "0".
 	 */
+	public $ban;
+
+	/**
+	 * @var string $lastMessage The last message displayed to the user. This is handled by displayMessage()
+	 */
+	private $lastMessage;
 
 	/**
 	 * Creates the user object.
@@ -68,6 +74,7 @@ class User{
 				$this->avatar = $r['avatar'];
 				$this->lastRefresh = $r['lastRefresh'];
 				$this->ban = $r['ban'];
+				$this->lastMessage = $r['lastmessage'];
 
 				return;
 
@@ -126,6 +133,26 @@ class User{
 	 */
 	public function getURL(){
 		return 'http://steamcommunity.com/profiles/'.$this->steamid;
+	}
+
+	/**
+	 * Displays one of the messages from messages.php to the user. Updates the DB so that it isn't displayed again.
+	 */
+	public function displayMessage(){
+		global $GLOBAL_CONFIG;
+		if($this->lastMessage == $GLOBAL_CONFIG['version']) return FALSE;
+		require_once 'messages.php';
+		$message = getMessage($this->lastMessage);
+		if($message === FALSE) return FALSE;
+		if(!isset($message['closeButton'])) $message['closeButton'] = 'Close';
+
+		$modal = new Modal('messageModal', $message['title'], $message['content'], $message['closeButton']);
+		echo $modal->getModal(TRUE);
+
+		global $mysqli;
+		$mysqli->query("UPDATE users SET lastmessage = '".$GLOBAL_CONFIG['version']."' WHERE id = ".$this->id);
+		return TRUE;
+
 	}
 }
 
@@ -262,5 +289,68 @@ class Stack{
 		return TRUE;
 
 	}
-}	
+}
+
+/**
+ * Modal Class
+ *
+ * Ths class manages Bootstrap modals to make their creation much simpler.
+ */
+class Modal{
+	private $id;
+	private $title;
+	private $content;
+	private $closeButton;
+	private $saveButton;
+	private $callButton;
+
+	/**
+	 *	Creates the modal object.
+	 *
+	 * @param string $id The modal's id. There can't be two modals with the same id on the same page.
+	 * @param string $title The modal's title. Can use HTML but shouldn't
+	 * @param string $content The modal's content. Can use HTML
+	 * @param string $closeButton The text for the close button. Optional; default is "Close".
+	 * @param string $saveButton The HTML code for the save button, if there's any. Optional
+	 * @param array $callbutton An array with two elements: $callbutton['content'] and $callbutton['attributes']. The content will be place inside the button and the attributes will be place inside the <button> tag. The attributes are optional, the content isn't. The entire parameter is optional, but the modal will need to be set in "autocall" to be displayed.
+	 */
+	public function __construct($id, $title, $content, $closeButton = "Close", $saveButton = "Undefined", $callButton = "Undefined"){
+		$this->id = $id;
+		$this->title = $title;
+		$this->content = $content;
+		$this->closeButton = $closeButton;
+		$this->saveButton = ($saveButton === "Undefined") ? NULL : $saveButton;
+		//If the callButton is set and has at least its content, set the property to the given object, otherwise, set it to NULL
+		$this->callButton = ($callButton === "Undefined") ? NULL : ((isset($callButton['content'])) ? $callButton : NULL);
+	}
+
+	/**
+	 * Generates the modal's HTML
+	 *
+	 * @param boolean $autoCall If is set to TRUE, generates also a script for the modal to be shown instantly, without needing a button to be pressed.
+	 */
+	public function getModal($autoCall = FALSE){
+		return '<div class="modal fade" id="'.$this->id.'" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">'.$this->title.'</h4>
+						</div>
+						<div class="modal-body">'.$this->content.'</div>
+						<div class="modal-footer">
+							'.(is_null($this->saveButton) ? '' : $this->saveButton).'
+							<button type="button" class="btn btn-default" data-dismiss="modal">'.$this->closeButton.'</button>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->'.
+
+			($autoCall ? '<script type="text/javascript">
+				$( document ).ready(function(){
+					$(\'#'.$this->id.'\').modal();
+				});
+			</script>' : '');
+	}
+}
 ?>

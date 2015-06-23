@@ -1,6 +1,10 @@
 #Bower
 bower_components
 
+#Sublime text
+*.sublime-project
+*.sublime-workspace
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

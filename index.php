@@ -27,6 +27,13 @@ if(isset($_SESSION['steamid'])){
 
 }
 
+//"Login as" feature for testing purposes. It is only allowed with the DEV_MODE enabled, wich mustn't be in production.
+if($GLOBAL_CONFIG['DEV_MODE'] AND isset($_GET['loginas'])){
+    $loggedUser = new User('db', $_GET['loginas']);
+    $_SESSION['steamid'] = $loggedUser->steamid;
+    die('<meta http-equiv="refresh" content="0; url=index.php" />');
+}
+
 //If the user has created a stack, handle it.
 if(isset($_POST['createStackButton'])){
     if(!isset($_POST['gamemode'])) die('The gamemode information was not sent correctly. You shouldn\'t be seeing this error, though. Blame /u/sfcpfc for his incompetence. Or maybe upgrade to a browser that supports HTML5, you lazy.');
@@ -94,6 +101,7 @@ if(isset($_GET['leaveStack'])){
 }
 
 if(!isset($error)) $error = 'none';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -143,6 +151,7 @@ if(!isset($error)) $error = 'none';
         </div>
     <?php else: //!isset($loggedUser)) 
     //Stack dashboard?>
+        <?php $loggedUser->displayMessage() ?>
         <div id="joinedStacksRow" class="row">
             <h3>Joined Stacks:</h3>
             <div id="joinedStacks" class=""></div>
