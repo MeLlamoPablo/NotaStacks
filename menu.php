@@ -34,7 +34,7 @@
 <?php
 //Footer
 define('FOOTER',
-'<div class="navbar navbar-default navbar-fixed-bottom">
+'<div id="footer" class="navbar navbar-default navbar-fixed-bottom">
     <div class="container">
         <p class="navbar-text">Created by Pablo Rodríguez (<a href="http://steamcommunity.com/id/MeLlamoPablo" target="_blank">MeLlamoPablo</a> a.k.a. <a href="http://www.reddit.com/user/sfcpfc" target="_blank">/u/sfcpfc</a>) for <a href="http://reddit.com/r/noobsoftheancient" target="_blank">/r/NoobsOfTheAncient</a>.</p>
     </div>

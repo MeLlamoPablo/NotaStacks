@@ -128,7 +128,7 @@ if(!isset($error)) $error = 'none';
     </script>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="wrap">
 
     <?php include 'menu.php'; ?>
 
