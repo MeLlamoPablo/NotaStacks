@@ -242,10 +242,10 @@ class Stack{
 			}
 			return;
 		}else{
-			$r = $mysqli->query("SELECT * FROM stacks WHERE id = ".$source);
+			$r = $mysqli->query("SELECT * FROM stacks WHERE id = ".$mysqli->real_escape_string($source));
 			$r = $r->fetch_assoc();
 
-			$r2 = $mysqli->query("SELECT * FROM stacks_players WHERE stack = ".$source);
+			$r2 = $mysqli->query("SELECT * FROM stacks_players WHERE stack = ".$mysqli->real_escape_string($source));
 			for($i=0; $r3 = $r2->fetch_assoc(); $i++){
 				$players[$i] = new User('db', $r3['player']);
 			}
@@ -295,13 +295,14 @@ class Stack{
  * Modal Class
  *
  * Ths class manages Bootstrap modals to make their creation much simpler.
+ *
+ * @author Pablo Rodríguez <pabloviolin8@gmail.com>
  */
 class Modal{
 	private $id;
 	private $title;
 	private $content;
-	private $closeButton;
-	private $saveButton;
+	private $modalButtons;
 	private $callButton;
 
 	/**
@@ -310,18 +311,16 @@ class Modal{
 	 * @param string $id The modal's id. There can't be two modals with the same id on the same page.
 	 * @param string $title The modal's title. Can use HTML but shouldn't
 	 * @param string $content The modal's content. Can use HTML
-	 * @param string $closeButton The text for the close button. Optional; default is "Close".
-	 * @param string $saveButton The HTML code for the save button, if there's any. Optional
-	 * @param array $callbutton An array with two elements: $callbutton['content'] and $callbutton['attributes']. The content will be place inside the button and the attributes will be place inside the <button> tag. The attributes are optional, the content isn't. The entire parameter is optional, but the modal will need to be set in "autocall" to be displayed.
+	 * @param string $modalButtons The code for the modal buttons (i.e: discard and save). If empty or null, will generate a generic Close button.
+	 * @param array $callbutton An array with two elements: $callbutton['content'] and $callbutton['attributes']. The content will be placed inside the button and the attributes will be place inside the <button> tag. The attributes are optional, the content isn't. The entire parameter is optional, but the modal will need to be set in "autocall" to be displayed.
 	 */
-	public function __construct($id, $title, $content, $closeButton = "Close", $saveButton = "Undefined", $callButton = "Undefined"){
+	public function __construct($id, $title, $content, $modalButtons = NULL, $callButton = NULL){
 		$this->id = $id;
 		$this->title = $title;
 		$this->content = $content;
-		$this->closeButton = $closeButton;
-		$this->saveButton = ($saveButton === "Undefined") ? NULL : $saveButton;
+		$this->modalButtons = ($modalButtons === NULL) ? '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' : $modalButtons; 
 		//If the callButton is set and has at least its content, set the property to the given object, otherwise, set it to NULL
-		$this->callButton = ($callButton === "Undefined") ? NULL : ((isset($callButton['content'])) ? $callButton : NULL);
+		$this->callButton = ($callButton === NULL) ? NULL : ((isset($callButton['content'])) ? $callButton : NULL);
 	}
 
 	/**
@@ -339,8 +338,7 @@ class Modal{
 						</div>
 						<div class="modal-body">'.$this->content.'</div>
 						<div class="modal-footer">
-							'.(is_null($this->saveButton) ? '' : $this->saveButton).'
-							<button type="button" class="btn btn-default" data-dismiss="modal">'.$this->closeButton.'</button>
+							'.$this->modalButtons.'
 						</div>
 					</div><!-- /.modal-content -->
 				</div><!-- /.modal-dialog -->

@@ -17,6 +17,23 @@ if(isset($loggedUser) AND $loggedUser->ban !== '0'){
         unset($loggedUser);
     }
 }
+
+//Invitation handle
+if(isset($_GET['i'])){
+    $stack = new Stack($_GET['i']);
+    if(isset($stack->id)){ //Dont contiune if the id provided is not valid
+        $title = 'You\'ve been invited to play in a stack!';
+        $content = '//TODO';
+        if(!isset($loggedUser)) $steamlogin = steamlogin('joinStack='.$_GET['i']);
+        $modalButtons = isset($steamlogin) ? $steamlogin : '//TODO';
+        $modal = new Modal('invitationToStack', $title, $content, $modalButtons);
+        echo $modal->getModal(true);
+    }
+}
+
+//If isn't set yet, set the steamlogin var
+if(!isset($steamlogin)) $steamlogin = steamlogin();
+
 ?>
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">

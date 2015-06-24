@@ -87,7 +87,7 @@ if(isset($_GET['joinStack'])){
     if(in_array($loggedUser, $stack->players)) die('You\'ve already joined this stack.<meta http-equiv="refresh" content="3; url=index.php" />');
 
     //Add the player
-    $stack->addPlayer($loggedUser);
+    $stack->addPlayer($loggedUser);die(); //TODO this will output an error if a guest sees
     die('<meta http-equiv="refresh" content="0; url=index.php" />'); //We redirect the user so that we get rid of ?joinStack, thus, the user can refresh without being prompted an error.
 
 }
@@ -138,7 +138,8 @@ if(!isset($error)) $error = 'none';
 <body>
     <div class="container" id="wrap">
 
-    <?php include 'menu.php'; ?>
+    <?php include 'menu.php';
+    //This script handles the menu and the messages displayed to guests or non logged users. Currently, ban messages and invitations. ?>
 
     <?php if(!isset($loggedUser)):
     //If the user hasn't signed in, we show the welcome message. ?>
@@ -146,7 +147,7 @@ if(!isset($error)) $error = 'none';
             <h1>Find stacks. Get rampages.</h1>
             <p>NotA Stacks is a tool that can match you with friendly players. Unorganized games and unwanted teammates are a thing of the past. Have fun.</p>
             <p>
-                <?php steamlogin(); ?>
+                <?php echo steamlogin() ?>
             <p>
         </div>
     <?php else: //!isset($loggedUser)) 
@@ -344,7 +345,8 @@ if(!isset($error)) $error = 'none';
                                                         </div>
                                                         <div class="modal-body">
                                                             ';
-                                                                echo '<p>Hey there, this feature isn\'t implemented yet, but soon&#8482; you\'ll be able to give a link to your firends and invite them.</p>
+                                                                echo '<p>If you want your friends to join, you can give them the following link to invite them:</p>
+                                                                <input if="inviteLink" class="form-control" value="http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'?i='.$stacks[$i]->id.'" type="text" readonly style="background-color: white;"></input>
                                                                 <p>The following players have already joined the stack:</p>
                                                                 <table class="table table-bordered table-striped">
                                                                     <tbody>';
