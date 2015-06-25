@@ -177,7 +177,7 @@ if(!isset($error)) $error = 'none';
                             <form action="index.php" method="POST">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">Create a new Stack</h4>
+                                    <h4 class="modal-title" id="addStack">Create a new Stack</h4>
                                 </div>
                                 <div class="modal-body">
                                     <p>Here you can create a Stack so that you can gather players and play with them!</p>
@@ -336,57 +336,43 @@ if(!isset($error)) $error = 'none';
                                     if($i2 !== 5){
                                         if($userBelongsToStack){
                                             //If the player is already in the stack, show "looking for players" buttons
+                                            $modalId = 'modalInvitetoStack'.$stacks[$i]->id;
+                                            $modalTitle = 'Invite firends to Stack #'.$stacks[$i]->id;
+                                            $modalContent =
+
+                                            '<p>If you want your friends to join, you can give them the following link to invite them:</p>
+                                            <input if="inviteLink" class="form-control" value="http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'?i='.$stacks[$i]->id.'" type="text" readonly style="background-color: white;"></input>
+                                            <p>The following players have already joined the stack:</p>'
+                                            .$stacks[$i]->listPlayers();
+
+                                            $modalButtons = NULL;
+
                                             for($i3=0; $i3 < (5 - $i2); $i3++){ 
                                                 echo '<button class="btn btn-default invitetoStack'.$stacks[$i]->id.'" style="width: 64px; height: 64px;" data-show="tooltip" title="Looking for players. Click to invite your friends!" data-toggle="modal" data-target="#modalInvitetoStack'.$stacks[$i]->id.'">
                                                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                                            </button>';
+                                                </button>';
                                             }
-                                            echo '<div class="modal fade" id="modalInvitetoStack'.$stacks[$i]->id.'" tabindex="-1" role="dialog" aria-labelledby="modalInvitetoStack'.$stacks[$i]->id.'Label">
-                                                <div class="modal-dialog" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                            <h4 class="modal-title" id="modalInvitetoStack'.$stacks[$i]->id.'Label">Invite firends to Stack #'.$stacks[$i]->id.'</h4>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            ';
-                                                                echo '<p>If you want your friends to join, you can give them the following link to invite them:</p>
-                                                                <input if="inviteLink" class="form-control" value="http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'?i='.$stacks[$i]->id.'" type="text" readonly style="background-color: white;"></input>
-                                                                <p>The following players have already joined the stack:</p>'.$stacks[$i]->listPlayers();
-                                                            echo '</div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                        </div>
-                                                    </div><!-- /.modal-content -->
-                                                </div><!-- /.modal-dialog -->
-                                            </div><!-- /.modal -->';
+                                            
                                         }else{
                                             //If the player isn't in the stack yet, show join buttons
+                                            $modalId = 'modalJoinStack'.$stacks[$i]->id;
+                                            $modalTitle = 'Join stack #'.$stacks[$i]->id.'?';
+                                            $modalContent =
+
+                                            '<p>You will be matched with the following players:</p>'
+                                            .$stacks[$i]->listPlayers().
+                                            '<p>Please, be friendly and respectful towards them, and try not to be late. Have fun!</p>';
+
+                                            $modalButtons = '<button type="button" onclick="window.location.href=\'index.php?joinStack='.$stacks[$i]->id.'\';" class="btn btn-primary">Join the stack</button>';
+
                                             for($i3=0; $i3 < (5 - $i2); $i3++){ 
                                                 echo '<button class="btn btn-info joinStack'.$stacks[$i]->id.'" style="width: 64px; height: 64px;" data-show="tooltip" title="Join the stack" data-toggle="modal" data-target="#modalJoinStack'.$stacks[$i]->id.'">
                                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                                             </button>';
                                             }
-                                            echo '<div class="modal fade" id="modalJoinStack'.$stacks[$i]->id.'" tabindex="-1" role="dialog" aria-labelledby="modalJoinStack'.$stacks[$i]->id.'Label">
-                                                <div class="modal-dialog" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                            <h4 class="modal-title" id="modalJoinStack'.$stacks[$i]->id.'Label">Join stack #'.$stacks[$i]->id.'?</h4>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            ';
-                                                                echo '<p>You will be matched with the following players:</p>'.$stacks[$i]->listPlayers();
-                                                            echo '<p>Please, be friendly and respectful towards them, and try not to be late. Have fun!</p>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                            <button type="button" onclick="window.location.href=\'index.php?joinStack='.$stacks[$i]->id.'\';" class="btn btn-primary">Join the stack</button>
-                                                        </div>
-                                                    </div><!-- /.modal-content -->
-                                                </div><!-- /.modal-dialog -->
-                                            </div><!-- /.modal -->';
                                         }
+                                        $modal = new Modal($modalId, $modalTitle, $modalContent, $modalButtons);
+                                        echo $modal->getModal();
                                     echo '</div>';
                                     }
 
