@@ -76,6 +76,11 @@ if(isset($_POST['createStackButton'])){
     }
 
 }
+//If a player has accepted the invitation to a stack, join him after he logs in
+if(isset($_GET['joinInvitation']) AND isset($loggedUser)){
+    $_GET['joinStack'] = $_GET['joinInvitation'];
+    unset($_GET['joinInvitation']);
+}
 
 //If the player has joined a stack
 if(isset($_GET['joinStack'])){
@@ -87,7 +92,7 @@ if(isset($_GET['joinStack'])){
     if(in_array($loggedUser, $stack->players)) die('You\'ve already joined this stack.<meta http-equiv="refresh" content="3; url=index.php" />');
 
     //Add the player
-    $stack->addPlayer($loggedUser);die(); //TODO this will output an error if a guest sees
+    $stack->addPlayer($loggedUser);
     die('<meta http-equiv="refresh" content="0; url=index.php" />'); //We redirect the user so that we get rid of ?joinStack, thus, the user can refresh without being prompted an error.
 
 }
@@ -347,17 +352,7 @@ if(!isset($error)) $error = 'none';
                                                             ';
                                                                 echo '<p>If you want your friends to join, you can give them the following link to invite them:</p>
                                                                 <input if="inviteLink" class="form-control" value="http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'?i='.$stacks[$i]->id.'" type="text" readonly style="background-color: white;"></input>
-                                                                <p>The following players have already joined the stack:</p>
-                                                                <table class="table table-bordered table-striped">
-                                                                    <tbody>';
-                                                                        for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
-                                                                            echo '<tr>';
-                                                                                echo '<td style="width:11%;"><img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="48" height="48" /></td>';
-                                                                                echo '<td><a href="'.$stacks[$i]->players[$i2]->getURL().'" target="_blank">'.$stacks[$i]->players[$i2]->name.'</a></td>';
-                                                                            echo '</tr>';
-                                                                        }
-                                                                    echo '</tbody>
-                                                                </table>';
+                                                                <p>The following players have already joined the stack:</p>'.$stacks[$i]->listPlayers();
                                                             echo '</div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -381,17 +376,7 @@ if(!isset($error)) $error = 'none';
                                                         </div>
                                                         <div class="modal-body">
                                                             ';
-                                                                echo '<p>You will be matched with the following players:</p>
-                                                                <table class="table table-bordered table-striped">
-                                                                    <tbody>';
-                                                                        for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
-                                                                            echo '<tr>';
-                                                                                echo '<td style="width:11%;"><img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="48" height="48" /></td>';
-                                                                                echo '<td><a href="'.$stacks[$i]->players[$i2]->getURL().'" target="_blank">'.$stacks[$i]->players[$i2]->name.'</a></td>';
-                                                                            echo '</tr>';
-                                                                        }
-                                                                    echo '</tbody>
-                                                                </table>';
+                                                                echo '<p>You will be matched with the following players:</p>'.$stacks[$i]->listPlayers();
                                                             echo '<p>Please, be friendly and respectful towards them, and try not to be late. Have fun!</p>
                                                         </div>
                                                         <div class="modal-footer">

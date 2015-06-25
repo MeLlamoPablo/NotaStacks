@@ -144,7 +144,7 @@ class User{
 		require_once 'messages.php';
 		$message = getMessage($this->lastMessage);
 		if($message === FALSE) return FALSE;
-		if(!isset($message['closeButton'])) $message['closeButton'] = 'Close';
+		if(!isset($message['closeButton'])) $message['closeButton'] = NULL;
 
 		$modal = new Modal('messageModal', $message['title'], $message['content'], $message['closeButton']);
 		echo $modal->getModal(TRUE);
@@ -258,6 +258,25 @@ class Stack{
 			$this->server = $r['server'];
 			return;
 		}
+	}
+
+	/**
+	 * Returns a list with the current players that can be displayed by doing echo();
+	 *
+	 * @return string The list of players
+	 */
+	public function listPlayers(){
+		$return ='<table class="table table-bordered table-striped">
+            <tbody>';
+                for ($i=0; $i < count($this->players); $i++) { 
+                    $return .= '<tr>';
+                        $return .= '<td style="width:11%;"><img src="'.$this->players[$i]->avatar.'" alt="'.$this->players[$i]->name.'\'s avatar width="48" height="48" /></td>';
+                        $return .= '<td><a href="'.$this->players[$i]->getURL().'" target="_blank">'.$this->players[$i]->name.'</a></td>';
+                    $return .= '</tr>';
+                }
+            $return .= '</tbody>
+        </table>';
+        return $return;
 	}
 
 	/**

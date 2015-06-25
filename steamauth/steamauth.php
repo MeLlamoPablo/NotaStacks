@@ -20,7 +20,7 @@ try {
             header('Location: ' . $openid->authUrl());
         }
 
-    return "<form action=\"?login".(($aditionalVars === '') ? '' : '&'.$aditionalVars)."\" method=\"post\"> <input type=\"image\" src=\"steamauth/signinthroughsteam.png\"></form>";
+    return "<form action=\"?login".(($aditionalVars === '') ? '' : '&'.http_build_query($aditionalVars))."\" method=\"post\"> <input type=\"image\" src=\"steamauth/signinthroughsteam.png\"></form>";
     }
 
      elseif($openid->mode == 'cancel') {

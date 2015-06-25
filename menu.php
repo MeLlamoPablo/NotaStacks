@@ -23,16 +23,20 @@ if(isset($_GET['i'])){
     $stack = new Stack($_GET['i']);
     if(isset($stack->id)){ //Dont contiune if the id provided is not valid
         $title = 'You\'ve been invited to play in a stack!';
-        $content = '//TODO';
-        if(!isset($loggedUser)) $steamlogin = steamlogin('joinStack='.$_GET['i']);
+        $content = '<p>The stack will play '.$stack->gamemode.'. The following players have already joined the stack:</p>'
+                    .$stack->listPlayers().'<p>The stack will play on <span id="timeForStack'.$stack->id.'"></span> (that\'s <span id="timeRemainingForStack'.$stack->id.'"></span>!). Please, if you can\'t play (or you\'re not sure if you\'ll be able) at that time, refrain from joining the stack.</p>
+                    <script type="text/javascript">
+                        var stacktime = moment(\''.$stack->time.'\', \'X\');
+                        $(\'#timeForStack'.$stack->id.'\').html(stacktime.format(\'LLLL\'));
+                        $(\'#timeRemainingForStack'.$stack->id.'\').html(stacktime.fromNow());
+                    </script>';
+
+        if(!isset($loggedUser)) $steamlogin = steamlogin(array('joinInvitation' => $_GET['i']));
         $modalButtons = isset($steamlogin) ? $steamlogin : '//TODO';
         $modal = new Modal('invitationToStack', $title, $content, $modalButtons);
         echo $modal->getModal(true);
     }
 }
-
-//If isn't set yet, set the steamlogin var
-if(!isset($steamlogin)) $steamlogin = steamlogin();
 
 ?>
 <nav class="navbar navbar-inverse navbar-fixed-top">
