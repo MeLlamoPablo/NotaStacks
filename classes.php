@@ -91,12 +91,14 @@ class User{
 	/**
 	 * Refreshes the user info.
 	 *
-	 * This method fetches the information (username and avatar) from Steam for the user.
+	 * This method fetches the information (username and avatar) from Steam for the user, but only if the time since the lasr refresh is greater than $GLOBAL_CONFIG['refreshWaitTime']
 	 * Note that the ID won't be fetched again because it souldn't change.
 	 *
-	 * @return void
+	 * @return boolean TRUE if the content has been refreshed or FALSE if the user isn't able to refresh it yet.
 	 */
 	public function refresh(){
+		global $GLOBAL_CONFIG;
+		if($this->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) return FALSE;
 		$_SESSION['steam_uptodate'] = FALSE;
 		$r = getInfo();
 		$this->name = $r['personaname'];
@@ -104,6 +106,7 @@ class User{
 		$this->lastRefresh = time();
 
 		$this->saveChanges();
+		return TRUE;
 	}
 
 	/**
@@ -305,6 +308,8 @@ class Stack{
 		//Check if the player is already in the stack
 		if(!in_array($player, $this->players)) return FALSE;
 		$mysqli->query("DELETE FROM stacks_players WHERE player = ".$mysqli->real_escape_string($player->id)." AND stack = ".$mysqli->real_escape_string($this->id));
+		//If he was the last player, delete the stack
+		if(count($this->players) === 1) $mysqli->query("DELETE FROM stacks WHERE id = ".$mysqli->real_escape_string($this->id));
 		return TRUE;
 
 	}

@@ -52,9 +52,9 @@ if(isset($_GET['i'])){
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li class="active"><a href="#">Home</a></li>
+                <li <?php if(ACTIVE_PAGE === 'index') echo 'class="active"' ?>><a href="index.php">Home</a></li>
                 <?php if(isset($loggedUser)): ?>
-                <li style="margin-top: -9px"><a href="#"><img src="<?php echo $loggedUser->avatar ?>" width="32" height="32" /></a></li>
+                <li <?php if(ACTIVE_PAGE === 'profile') echo 'class="active"' ?> style="margin-top: -9px"><a href="profile.php"><img src="<?php echo $loggedUser->avatar ?>" width="32" height="32" /></a></li>
                 <li><a href="steamauth/logout.php"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a></li>
                 <?php endif; ?>
             </ul>

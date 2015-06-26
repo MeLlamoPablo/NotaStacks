@@ -1,4 +1,5 @@
 <?php
+define('ACTIVE_PAGE', 'index');
 //Config
 require_once 'config.php';
 //Steamauth requires
@@ -41,6 +42,8 @@ if(isset($_POST['createStackButton'])){
 
     if(!isset($_POST['timePicker'])) die('The time information was not sent correctly. You shouldn\'t be seeing this error, though. Blame /u/sfcpfc for his incompetence. Or maybe upgrade to a browser that supports HTML5, you lazy.');
     $time = $mysqli->real_escape_string($_POST['timePicker']);
+
+    if($time < time()) die('You can\'t set a stack for the past');
 
     $servers['string'] = '';
     for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
@@ -281,11 +284,13 @@ if(!isset($error)) $error = 'none';
         <div class="row stackContainter">
             <?php //Get the stacks and output them
             
-            $r = $mysqli->query("SELECT id FROM stacks WHERE time > ".time());
+            $r = $mysqli->query("SELECT id FROM stacks WHERE time > ".(time() - 3600)); //We display upcoming stacks and also stacks that were already played up to one hour ago. We'll only display these if the user belongs to the stack.
             for($i=1; $r2 = $r->fetch_assoc(); $i++){ //$i = 1; instead of $i = 0 because the row ID begins in 1
                 $stacks[$i] = new Stack($r2['id']);
                 //Does the user belongs to the stack?
-                $userBelongsToStack = (in_array($loggedUser, $stacks[$i]->players) ? TRUE : FALSE);   
+                $userBelongsToStack = (in_array($loggedUser, $stacks[$i]->players) ? TRUE : FALSE);
+                //If the user doens't belong to the stack and the stack time has passed, skip this iteration. However, if the user belongs to it, the stack won't disappear until one hour has passed.
+                if(!$userBelongsToStack AND ($stacks[$i]->time < time())) continue;
 
                 //Panel
                 echo '<div class="stack col-sm-4" id="stack'.$stacks[$i]->id.'" data-time="'.$stacks[$i]->time.'"';
@@ -314,7 +319,7 @@ if(!isset($error)) $error = 'none';
                             <div class="panel-heading">
                                 <h3 class="panel-title">#'.$stacks[$i]->id.' - '.$stacks[$i]->gamemode.'';
                                 //If the user belongs to the stack, show button to leave
-                                if($userBelongsToStack){ echo '<button id="leaveStack'.$stacks[$i]->id.'" type="button" class="btn btn-danger btn-xs" style="float:right;">Leave stack</button>';
+                                if($userBelongsToStack){ echo '<button id="leaveStack'.$stacks[$i]->id.'" type="button" class="btn btn-danger btn-xs" style="float:right;">'.((count($stacks[$i]->players) === 1) ? 'Delete' : 'Leave').' stack</button>';
                                     echo '<script type="text/javascript">
                                             $("#leaveStack'.$stacks[$i]->id.'").click(function(){
                                                 var confirmDialog = confirm("Are you sure you want to leave stack #'.$stacks[$i]->id.'?");

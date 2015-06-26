@@ -12,4 +12,7 @@ $GLOBAL_CONFIG['owner'] = 'Pablo Rodríguez (<a href="http://steamcommunity.com/
 //Supported servers. CANNOT contain "-"
 $GLOBAL_CONFIG['servers'] = array('USE', 'EUW', 'EUE');
 
+//Time that the user has to wait before he can refresh his data from Steam again, in seconds.
+$GLOBAL_CONFIG['refreshWaitTime'] = 60 /*seconds*/ * 60 /*minutes*/ * 24 /*hours*/;
+
 ?>
