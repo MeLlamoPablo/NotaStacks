@@ -38,6 +38,9 @@ if(isset($_GET['i'])){
     }
 }
 
+//Prepare the rules modal
+$rulesModal = new Modal('rulesModal', 'NotA Stacks\' rules', $GLOBAL_CONFIG['rules']);
+echo $rulesModal->getModal();
 ?>
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
@@ -53,16 +56,23 @@ if(isset($_GET['i'])){
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li <?php if(ACTIVE_PAGE === 'index') echo 'class="active"' ?>><a href="index.php">Home</a></li>
+                <li><a id="showRules" style="cursor: pointer; cursor: hand;">Rules</a></li>
                 <?php if(isset($loggedUser)): ?>
                 <li <?php if(ACTIVE_PAGE === 'profile') echo 'class="active"' ?> style="margin-top: -9px"><a href="profile.php"><img src="<?php echo $loggedUser->avatar ?>" width="32" height="32" /></a></li>
-                <li><a id="logout"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a></li>
+                <li><a id="logout" style="cursor: pointer; cursor: hand;"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a></li>
                 <script type="text/javascript">
+                $(document).ready(function(){
                     $('#logout').click(function(){
                         var confirmDialog = confirm('Are you sure you want to log out?');
                         if(confirmDialog){
                             window.location.replace('steamauth/logout.php');
                         }
                     });
+
+                    $('#showRules').click(function(){
+                        $('#rulesModal').modal();
+                    });
+                });
                 </script>
                 <?php endif; ?>
             </ul>
