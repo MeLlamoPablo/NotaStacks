@@ -140,22 +140,41 @@ class User{
 
 	/**
 	 * Displays one of the messages from messages.php to the user. Updates the DB so that it isn't displayed again.
+	 * Also displays any message sent from the mods on the column "messageFromMods"
+	 *
+	 * @return boolean TRUE if it's displayed correctly, false if it isn't.
 	 */
-	public function displayMessage(){
+	public function displayMessages(){
+		//messages.php
+		$hasAMessage = TRUE;
 		global $GLOBAL_CONFIG;
-		if($this->lastMessage == $GLOBAL_CONFIG['version']) return FALSE;
+		if($this->lastMessage == $GLOBAL_CONFIG['version']) $hasAMessage = FALSE;
 		require_once 'messages.php';
 		$message = getMessage($this->lastMessage);
-		if($message === FALSE) return FALSE;
+		if($message === FALSE) $hasAMessage = FALSE;
 		if(!isset($message['closeButton'])) $message['closeButton'] = NULL;
 
-		$modal = new Modal('messageModal', $message['title'], $message['content'], $message['closeButton']);
-		echo $modal->getModal(TRUE);
+		if($hasAMessage){
+			$modal = new Modal('messageModal', $message['title'], $message['content'], $message['closeButton']);
+			echo $modal->getModal(TRUE);
+		}
 
 		global $mysqli;
 		$mysqli->query("UPDATE users SET lastmessage = '".$GLOBAL_CONFIG['version']."' WHERE id = ".$this->id);
-		return TRUE;
 
+		//Messages from the mods
+		$hasAMessageFromMods = TRUE;
+		$r = $mysqli->query("SELECT messageFromMods FROM users WHERE id = ".$this->id);
+		$r = $r->fetch_assoc();
+		if($r['messageFromMods'] !== NULL){
+			$modal2 = new Modal('messageFromModsModal', 'You\'ve got a message from the mods', '<p>'.$r['messageFromMods'].'</p>');
+			echo $modal2->getModal(TRUE);
+			$mysqli->query("UPDATE users SET messageFromMods = NULL WHERE id = ".$this->id);
+		}else{
+			$hasAMessageFromMods = FALSE;
+		}
+
+		return (($hasAMessage OR $hasAMessageFromMods) ? TRUE : FALSE);
 	}
 }
 
@@ -328,6 +347,7 @@ class Modal{
 	private $content;
 	private $modalButtons;
 	private $callButton;
+	static $autoCallModals = array();
 
 	/**
 	 *	Creates the modal object.
@@ -350,9 +370,16 @@ class Modal{
 	/**
 	 * Generates the modal's HTML
 	 *
+	 * Two or more modals can be set to autoCall. If that happens, the seond modal will appear after the first is closed, the third will do it after the second is closed, etc.
+	 *
 	 * @param boolean $autoCall If is set to TRUE, generates also a script for the modal to be shown instantly, without needing a button to be pressed.
 	 */
 	public function getModal($autoCall = FALSE){
+		//If there are two autoCall modals, this will determine if there was a previous modal auto called.
+		//If there was, we will get its id and store it in $last. By doing this we'll be abel to call the second modal once the first is closed, instead of calling both at the same time.
+		$last = (count(Modal::$autoCallModals) !== 0) ? array_pop(Modal::$autoCallModals) : NULL;
+		//If the modal is auto called, we add it to the autoCallModals array
+		if($autoCall) Modal::$autoCallModals[] = $this->id;
 		return '<div class="modal fade" id="'.$this->id.'" tabindex="-1" role="dialog">
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
@@ -370,7 +397,9 @@ class Modal{
 
 			($autoCall ? '<script type="text/javascript">
 				$( document ).ready(function(){
-					$(\'#'.$this->id.'\').modal();
+					'.(!is_null($last) ? '$(\'#'.$last.'\').on(\'hidden.bs.modal\', function (e) {' : '').'
+						$(\'#'.$this->id.'\').modal();
+					'.(!is_null($last) ? '});' : '').'
 				});
 			</script>' : '');
 	}

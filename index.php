@@ -160,7 +160,7 @@ if(!isset($error)) $error = 'none';
         </div>
     <?php else: //!isset($loggedUser)) 
     //Stack dashboard?>
-        <?php $loggedUser->displayMessage() ?>
+        <?php $loggedUser->displayMessages() ?>
         <div id="joinedStacksRow" class="row">
             <h3>Joined Stacks:</h3>
             <div id="joinedStacks" class=""></div>

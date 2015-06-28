@@ -26,6 +26,9 @@ if(isset($_SESSION['steamid'])){
     //Create a logged user object
     $loggedUser = new User();
 
+}else{
+	if(!isset($_GET['id'])) die('You need to log in to see your own profile.<meta http-equiv="refresh" content="3; url=index.php" />');
+	$loggedUser = NULL;
 }
 
 //Get the var for the user profile
@@ -33,13 +36,13 @@ $userProfile = (isset($_GET['id'])) ? new User('db', $_GET['id']) : $loggedUser;
 $hasSetProfile = FALSE;
 
 //If the user has refreshed his data
-if(isset($_GET['refresh'])) $alert = ($loggedUser->refresh()) ? '<div class="alert alert-success" role="alert">Your information has been refreshed successfully.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' : NULL;
+if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refresh()) ? '<div class="alert alert-success" role="alert">Your information has been refreshed successfully.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' : NULL;
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>NotA Stacks</title>
+    <title><?php echo $userProfile->name.((substr($userProfile->name, -1) === 's') ? '\'' : '\'s') ?> profile - NotA Stacks</title>
 
     <!-- Meta tags -->
     <meta charset="utf-8">
@@ -62,10 +65,17 @@ if(isset($_GET['refresh'])) $alert = ($loggedUser->refresh()) ? '<div class="ale
 
 		'<div class="jumbotron" style="margin-top: -15px">';
 			if(isset($alert)) echo $alert;
-			if($loggedUser->id === $userProfile->id) echo '<div class="row well well-sm container">
-				<button id="editProfileButton" class="btn btn-default">Edit profile</button>
-				<button '.(($loggedUser->timeSinceLastRefresh() > $GLOBAL_CONFIG['refreshWaitTime']) ? 'onclick="window.location.replace(\'profile.php?refresh\')" ' : '').'id="refreshButton" class="btn btn-primary'.(($loggedUser->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) ? ' disabled' : '' ).'" data-show="tooltip" data-placement="bottom" title="Doing this will download your new avatar and name from Steam to the server. For performance reasons, you can only do this every 24 hours.">Refresh data from Steam</button>
-			</div>';
+			if($loggedUser !== NULL){
+				echo '<div class="row well well-sm container">';
+				if($loggedUser->id === $userProfile->id){
+					echo '<button id="editProfileButton" class="btn btn-default">Edit profile</button>
+					<button '.(($loggedUser->timeSinceLastRefresh() > $GLOBAL_CONFIG['refreshWaitTime']) ? 'onclick="window.location.replace(\'profile.php?refresh\')" ' : '').'id="refreshButton" class="btn btn-primary'.(($loggedUser->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) ? ' disabled' : '' ).'" data-show="tooltip" data-placement="bottom" title="Doing this will download your new avatar and name from Steam to the server. For performance reasons, you can only do this every 24 hours.">Refresh data from Steam</button>';
+				}else{
+					echo '<button id="commendButton" class="btn btn-success" data-show="tooltip" data-placement="bottom" title="Commend this player"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button>';
+					echo '<button id="reportButton" class="btn btn-danger" data-show="tooltip" data-placement="bottom" title="Report this player"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></button>';
+				}
+				echo '</div>';
+			}
 			echo '<div class="row">
 				<div class="col-sm-3" style="text-align: right;">
 					<img src="'.$userProfile->avatar.'" class="img-responsive img-thumbnail" />
@@ -75,7 +85,7 @@ if(isset($_GET['refresh'])) $alert = ($loggedUser->refresh()) ? '<div class="ale
 					if($hasSetProfile){
 						//TODO
 					}else{
-						if($loggedUser->id === $userProfile->id){
+						if(($loggedUser !== NULL) AND ($loggedUser->id === $userProfile->id)){
 							echo '<p>You haven\'t configured your NotA Stacks profile yet.<br>
 							Click here to do it.';
 						}else{

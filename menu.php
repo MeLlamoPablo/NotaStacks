@@ -55,7 +55,15 @@ if(isset($_GET['i'])){
                 <li <?php if(ACTIVE_PAGE === 'index') echo 'class="active"' ?>><a href="index.php">Home</a></li>
                 <?php if(isset($loggedUser)): ?>
                 <li <?php if(ACTIVE_PAGE === 'profile') echo 'class="active"' ?> style="margin-top: -9px"><a href="profile.php"><img src="<?php echo $loggedUser->avatar ?>" width="32" height="32" /></a></li>
-                <li><a href="steamauth/logout.php"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a></li>
+                <li><a id="logout"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a></li>
+                <script type="text/javascript">
+                    $('#logout').click(function(){
+                        var confirmDialog = confirm('Are you sure you want to log out?');
+                        if(confirmDialog){
+                            window.location.replace('steamauth/logout.php');
+                        }
+                    });
+                </script>
                 <?php endif; ?>
             </ul>
         </div>

@@ -1,11 +1,9 @@
 #TODO list
 
 * Improve sorting
-* Refresh data from steam option
 
 ### Swish's suggestions
 
-* When logged in, and you click the power button, have it either bring up a menu with “Log Out” as an option, or have it open a pop up saying something like “Are you sure you want to log out?” I know I was a bit surprised when it just logged me out right away, other users might also be surprised by that.
 * Have a way for user to edit their profile on the site, with options such as saying their available times, game mode preferences, prefer ranked vs unranked, personal skill level, preference as to playing with lower skill levels, their skill, or higher skill levels, etc
 * Have a search option to view all the user’s profiles
 * Allow users to make preferences private, but not the fact that they use the site
