@@ -2,7 +2,7 @@
 
 NotA Stacks is an app created for helping Dota 2 players finding a group of friendly people who want to play, given most solo-queue games' poor quality.
 
-NotA Stacks is built on PHP and only needs a PHP server to be run. It also uses Bootstrap and jQuery
+NotA Stacks is built on PHP and only needs a PHP server and a MySQL database to be run. It also uses Bootstrap and jQuery
 
 ### Installation
 
