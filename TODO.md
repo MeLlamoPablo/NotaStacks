@@ -1,6 +1,9 @@
 #TODO list
 
 * Improve sorting
+* Allow profile editing
+* Commend/Report buttons
+* Heroes on profiles
 
 ### Swish's suggestions
 

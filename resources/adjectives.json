@@ -1,0 +1,30 @@
+{
+	"0": {
+		"adjective": "Your regular",
+		"commends": 0
+	},
+	"1": {
+		"adjective": "Casual",
+		"commends": 0
+	},
+	"2": {
+		"adjective": "Some random",
+		"commends": 1
+	},
+	"3": {
+		"adjective": "Friendly",
+		"commends": 5
+	},
+	"4": {
+		"adjective": "Handsome",
+		"commends": 10
+	},
+	"5": {
+		"adjective": "Pretty",
+		"commends": 10
+	},
+	"6": {
+		"adjective": "Dank",
+		"commends": 50
+	}
+}

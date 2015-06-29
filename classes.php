@@ -347,6 +347,7 @@ class Modal{
 	private $content;
 	private $modalButtons;
 	private $callButton;
+	private $formAttributes;
 	static $autoCallModals = array();
 
 	/**
@@ -357,14 +358,16 @@ class Modal{
 	 * @param string $content The modal's content. Can use HTML
 	 * @param string $modalButtons The code for the modal buttons (i.e: discard and save). If empty or null, will generate a generic Close button.
 	 * @param array $callbutton An array with two elements: $callbutton['content'] and $callbutton['attributes']. The content will be placed inside the button and the attributes will be place inside the <button> tag. The attributes are optional, the content isn't. The entire parameter is optional, but the modal will need to be set in "autocall" to be displayed.
+	 * @param string $formAttributes If the modal itself is a form that must be sumbitted, a string containing the attributes for the <form> tag (i.e: "action="send.php" method="post"). If it isn't set, no form will be created.
 	 */
-	public function __construct($id, $title, $content, $modalButtons = NULL, $callButton = NULL){
+	public function __construct($id, $title, $content, $modalButtons = NULL, $callButton = NULL, $formAttributes = NULL){
 		$this->id = $id;
 		$this->title = $title;
 		$this->content = $content;
 		$this->modalButtons = ($modalButtons === NULL) ? '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' : $modalButtons; 
 		//If the callButton is set and has at least its content, set the property to the given object, otherwise, set it to NULL
 		$this->callButton = ($callButton === NULL) ? NULL : ((isset($callButton['content'])) ? $callButton : NULL);
+		$this->formAttributes = $formAttributes;
 	}
 
 	/**
@@ -373,6 +376,8 @@ class Modal{
 	 * Two or more modals can be set to autoCall. If that happens, the seond modal will appear after the first is closed, the third will do it after the second is closed, etc.
 	 *
 	 * @param boolean $autoCall If is set to TRUE, generates also a script for the modal to be shown instantly, without needing a button to be pressed.
+	 *
+	 * @return string The modal's HTML code
 	 */
 	public function getModal($autoCall = FALSE){
 		//If there are two autoCall modals, this will determine if there was a previous modal auto called.
@@ -383,6 +388,7 @@ class Modal{
 		return '<div class="modal fade" id="'.$this->id.'" tabindex="-1" role="dialog">
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
+					'.(!is_null($this->formAttributes) ? '<form '.$this->formAttributes.'>' : '').'
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 							<h4 class="modal-title">'.$this->title.'</h4>
@@ -391,9 +397,10 @@ class Modal{
 						<div class="modal-footer">
 							'.$this->modalButtons.'
 						</div>
-					</div><!-- /.modal-content -->
-				</div><!-- /.modal-dialog -->
-			</div><!-- /.modal -->'.
+					'.(!is_null($this->formAttributes) ? '</form>' : '').'
+					</div>'.// /.modal-content
+				'</div>'.// /.modal-dialog
+			'</div>'.// /.modal
 
 			($autoCall ? '<script type="text/javascript">
 				$( document ).ready(function(){

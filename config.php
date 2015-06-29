@@ -29,4 +29,8 @@ $GLOBAL_CONFIG['rules'] = '
 
 ';
 
+//Adjectives file
+//Adjectives are unlocked by players depending on the number of commends and are displayed right before the player's position. For example: "Awesome Midlaner". The more commends the player has, the better the unlocked adjectives are.
+$GLOBAL_CONFIG['adjectives'] = json_decode(file_get_contents('resources/adjectives.json'), TRUE);
+
 ?>

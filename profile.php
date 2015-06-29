@@ -35,6 +35,11 @@ if(isset($_SESSION['steamid'])){
 $userProfile = (isset($_GET['id'])) ? new User('db', $_GET['id']) : $loggedUser;
 $hasSetProfile = FALSE;
 
+//If the user has created/edited his profile
+if(isset($_POST['editProfileSubmit'])){
+	die(print_r($_POST));
+}
+
 //If the user has refreshed his data
 if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refresh()) ? '<div class="alert alert-success" role="alert">Your information has been refreshed successfully.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' : NULL;
 ?>
@@ -66,10 +71,32 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 		'<div class="jumbotron" style="margin-top: -15px">';
 			if(isset($alert)) echo $alert;
 			if($loggedUser !== NULL){
-				echo '<div class="row well well-sm container">';
+				echo '<div class="row well well-sm container btn-group">';
 				if($loggedUser->id === $userProfile->id){
-					echo '<button id="editProfileButton" class="btn btn-default">Edit profile</button>
-					<button '.(($loggedUser->timeSinceLastRefresh() > $GLOBAL_CONFIG['refreshWaitTime']) ? 'onclick="window.location.replace(\'profile.php?refresh\')" ' : '').'id="refreshButton" class="btn btn-primary'.(($loggedUser->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) ? ' disabled' : '' ).'" data-show="tooltip" data-placement="bottom" title="Doing this will download your new avatar and name from Steam to the server. For performance reasons, you can only do this every 24 hours.">Refresh data from Steam</button>';
+					echo '<button data-toggle="modal" data-target="#editProfileModal" id="editProfileButton" class="btn '.($hasSetProfile ? 'btn-default">Edit profile</button>' : 'btn-success">Create profile</button>').
+					'<button '.(($loggedUser->timeSinceLastRefresh() > $GLOBAL_CONFIG['refreshWaitTime']) ? 'onclick="window.location.replace(\'profile.php?refresh\')" ' : '').'id="refreshButton" class="btn btn-primary'.(($loggedUser->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) ? ' disabled' : '' ).'" data-show="tooltip" data-placement="bottom" title="Doing this will download your new avatar and name from Steam to the server. For performance reasons, you can only do this every 24 hours.">Refresh data from Steam</button>';
+					$modalContent = '
+
+					'.(!$hasSetProfile ? '<div>Creating a NotA Stacks profile allows you to give information about your playstile, your likes, your availability, etc. You do not have to fill every field, but it\'s encouraged to give as much information as possible to find the best match.</div>' : '').'
+
+					<h4>Favourite position</h4>
+					<div class="btn-toolbar"><div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default"><input type="radio" name="position_supp" id="position_supp">Safelane Carry</label>
+						<label class="btn btn-default"><input type="radio" name="position_mid" id="position_mid">Midlaner</label>
+						<label class="btn btn-default"><input type="radio" name="position_off" id="position_off">Offlaner</label>
+						<label class="btn btn-default"><input type="radio" name="position_supp" id="position_supp">Support</label>
+					</div></div>
+
+					<h4>Adjective</h4>
+					<div>Adjectives are unlocked by earning commends. Be nice and friendly to your teammates, and they may commend you. You can chose to display an adjective before your position.</div>
+					<div> //TODO select
+					</div>
+
+					';
+					$modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Discard changes</button>
+					<button type="submit" name="editProfileSubmit" class="btn btn-'.($hasSetProfile ? 'primary' : 'success').'">Save changes</button>';
+					$editProfileModal = new Modal('editProfileModal', $hasSetProfile ? 'Edit my profile' : 'Create a NotA Stacks profile', $modalContent, $modalButtons, NULL, 'method="post" action"profile.php"');
+					echo $editProfileModal->getModal();
 				}else{
 					echo '<button id="commendButton" class="btn btn-success" data-show="tooltip" data-placement="bottom" title="Commend this player"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button>';
 					echo '<button id="reportButton" class="btn btn-danger" data-show="tooltip" data-placement="bottom" title="Report this player"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></button>';
@@ -87,7 +114,7 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 					}else{
 						if(($loggedUser !== NULL) AND ($loggedUser->id === $userProfile->id)){
 							echo '<p>You haven\'t configured your NotA Stacks profile yet.<br>
-							Click here to do it.';
+							Click the button above to do it.';
 						}else{
 							echo '<p>This user hasn\'t configured his NotA Stacks profile yet.<br>
 							Click <a href="'.$userProfile->getUrl().'" target="_blank">here</a> to go to his Steam profile.';
