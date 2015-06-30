@@ -44,6 +44,11 @@ class User{
 	private $lastMessage;
 
 	/**
+	 * @var int $commends The amount of commends the user has recived.
+	 */
+	public $commends;
+
+	/**
 	 * Creates the user object.
 	 *
 	 * This method creates the user object. If it's provieded with the source "db",
@@ -75,6 +80,7 @@ class User{
 				$this->lastRefresh = $r['lastRefresh'];
 				$this->ban = $r['ban'];
 				$this->lastMessage = $r['lastmessage'];
+				$this->commends = $r['commends'];
 
 				return;
 
@@ -175,6 +181,15 @@ class User{
 		}
 
 		return (($hasAMessage OR $hasAMessageFromMods) ? TRUE : FALSE);
+	}
+
+	/**
+	 * Commends the player
+	 */
+	public function commend(){
+		$this->commends++;
+		global $mysqli;
+		$mysqli->query("UPDATE users SET commends = commends + 1 WHERE id = ".$this->id);
 	}
 }
 
@@ -409,6 +424,44 @@ class Modal{
 					'.(!is_null($last) ? '});' : '').'
 				});
 			</script>' : '');
+	}
+}
+
+/**
+ * Level Manager Class
+ *
+ * This class manages the level system algorithm for NotA Stacks.
+ *
+ * The level system uses a linearly rising level gap, meaning that every level requires more of a constant amount of exp.
+ * For instance, level 2 requires 100 xp (100 more than level 1), and level 3 requires 300 xp (200 more than level 2).
+ *
+ * @author Pablo Rodríguez <pabloviolin8@gmail.com>
+ */
+class LevelManager{
+	public $exp;
+
+	public function __construct($exp){
+		$this->exp = $exp;
+	}
+
+	public function getCurrentLevel(){
+		return floor((sqrt(100*(2*$this->exp+25))+50)/(100));
+	}
+
+	public static function getNeededExpForLevel($level){
+		return (pow($level, 2)+$level)/2*100-($level*100);
+	}
+
+	public function getNeededExpForCurrentLevel(){
+		return $this->getNeededExpForLevel($this->getCurrentLevel());
+	}
+
+	public function getNeededExpForNextLevel(){
+		return $this->getNeededExpForLevel($this->getCurrentLevel() + 1);
+	}
+
+	public function getRemainingExpForNextLevel(){
+		return $this->getNeededExpForNextLevel() - $this->exp;
 	}
 }
 ?>

@@ -116,20 +116,7 @@ if(!isset($error)) $error = 'none';
 
 <head>
     <title>NotA Stacks</title>
-
-    <!-- Meta tags -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-
-    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
-    <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-    <link rel="stylesheet" href="resources/custom.css" />
+    <?php require_once 'head.php' ?>
     <!-- JS functions -->
     <script type="text/javascript">
     //Hides the elements that have every server property set to hidden or false (that's the same as checking if data-%server%!=true)

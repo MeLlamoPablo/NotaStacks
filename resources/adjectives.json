@@ -1,30 +1,34 @@
 {
 	"0": {
 		"adjective": "Your regular",
-		"commends": 0
+		"level": 1
 	},
 	"1": {
 		"adjective": "Casual",
-		"commends": 0
+		"level": 1
 	},
 	"2": {
 		"adjective": "Some random",
-		"commends": 1
+		"level": 2
 	},
 	"3": {
-		"adjective": "Friendly",
-		"commends": 5
+		"adjective": "Decent",
+		"level": 3
 	},
 	"4": {
-		"adjective": "Handsome",
-		"commends": 10
+		"adjective": "Friendly",
+		"level": 4
 	},
 	"5": {
-		"adjective": "Pretty",
-		"commends": 10
+		"adjective": "Handsome",
+		"level": 5
 	},
 	"6": {
+		"adjective": "Pretty",
+		"level": 5
+	},
+	"7": {
 		"adjective": "Dank",
-		"commends": 50
+		"level": 6
 	}
 }

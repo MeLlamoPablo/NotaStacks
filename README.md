@@ -24,3 +24,5 @@ NotA Stacks uses the following frameworks/libraries:
 * A modified version of [SteamAuthentication](https://github.com/SmItH197/SteamAuthentication)
 * [moment.js](http://momentjs.com/)
 * [Bootstrap 3 Date/Time Picker](https://github.com/Eonasdan/bootstrap-datetimepicker)
+* [bootstrap-progressbar](https://github.com/minddust/bootstrap-progressbar)
+* A modified version of [Chosen](https://github.com/harvesthq/chosen), [chosen-bootstrap](https://github.com/alxlit/bootstrap-chosen).

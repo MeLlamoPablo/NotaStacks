@@ -35,6 +35,14 @@ if(isset($_SESSION['steamid'])){
 $userProfile = (isset($_GET['id'])) ? new User('db', $_GET['id']) : $loggedUser;
 $hasSetProfile = FALSE;
 
+//"Login as" feature for testing purposes. It is only allowed with the DEV_MODE enabled, wich mustn't be in production.
+if($GLOBAL_CONFIG['DEV_MODE'] AND isset($_GET['instaCommend'])){
+	$userProfile->commend();
+}
+
+//Initialise the level manager
+$userLevel = new LevelManager($userProfile->commends * 100); //Each commend equals to 100 exp
+
 //If the user has created/edited his profile
 if(isset($_POST['editProfileSubmit'])){
 	die(print_r($_POST));
@@ -48,20 +56,7 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 
 <head>
     <title><?php echo $userProfile->name.((substr($userProfile->name, -1) === 's') ? '\'' : '\'s') ?> profile - NotA Stacks</title>
-
-    <!-- Meta tags -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-
-    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
-    <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
-    <link rel="stylesheet" href="resources/custom.css" />
+    <?php require_once 'head.php' ?>
 </head>
 <body>
 	<div class="container" id="wrap">
@@ -70,6 +65,7 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 
 		'<div class="jumbotron" style="margin-top: -15px">';
 			if(isset($alert)) echo $alert;
+			//Buttons
 			if($loggedUser !== NULL){
 				echo '<div class="row well well-sm container btn-group">';
 				if($loggedUser->id === $userProfile->id){
@@ -88,10 +84,14 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 					</div></div>
 
 					<h4>Adjective</h4>
-					<div>Adjectives are unlocked by earning commends. Be nice and friendly to your teammates, and they may commend you. You can chose to display an adjective before your position.</div>
-					<div> //TODO select
-					</div>
-
+					<div>Adjectives are unlocked by leveling up. Be nice and friendly to your teammates, and they may commend you. You can chose to display an adjective before your position.</div>
+					<select class="chosen-select" data-placeholder="Chose an adjective" style="width:350px;">
+						<option value="null"></option>';
+						for($i=0; isset($GLOBAL_CONFIG['adjectives'][$i]); $i++){ 
+							if($GLOBAL_CONFIG['adjectives'][$i]['level'] <= $userLevel->getCurrentLevel())
+								$modalContent .= '<option value="adj_'.$i.'">'.$GLOBAL_CONFIG['adjectives'][$i]['adjective'].'</option>';
+						}
+					$modalContent .= '</select>
 					';
 					$modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Discard changes</button>
 					<button type="submit" name="editProfileSubmit" class="btn btn-'.($hasSetProfile ? 'primary' : 'success').'">Save changes</button>';
@@ -103,8 +103,15 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 				}
 				echo '</div>';
 			}
-			echo '<div class="row">
-				<div class="col-sm-3" style="text-align: right;">
+			//Profile
+			echo '<div class="row">';
+				//Level system
+				echo '<div class="progress"><div class="progress-bar progress-bar-success" aria-valuemin="'.$userLevel->getNeededExpForCurrentLevel().'" aria-valuemax="'.$userLevel->getNeededExpForNextLevel().'" data-transitiongoal="'.$userLevel->exp.'">	
+				</div></div>
+				<script type="text/javascript">
+					$(".progress .progress-bar").progressbar({display_text: "center", use_percentage: false, amount_format: function(p, t) {return "Level '.$userLevel->getCurrentLevel().': "+ '.($userLevel->getRemainingExpForNextLevel()/100).' +" commend'.((($userLevel->getRemainingExpForNextLevel()/100) != 1) ? 's' : '').' to go.";}});
+				</script>';
+				echo '<div class="col-sm-3" style="text-align: right;">
 					<img src="'.$userProfile->avatar.'" class="img-responsive img-thumbnail" />
 				</div>
 				<div clas="col-sm-9">
@@ -133,7 +140,10 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
         $(function () {
             $('[data-show="tooltip"]').tooltip()
             //We use "data-show" instead of "data-toggle" so a button can have a tooltip and trigger a modal at once
-        })
+        });
+
+        //Chosen
+        $(".chosen-select").chosen({});
 	});
 	</script>
 </body>
