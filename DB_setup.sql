@@ -10,7 +10,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-06-2015 a las 19:16:33
+-- Tiempo de generación: 03-07-2015 a las 16:55:20
 -- Versión del servidor: 5.6.21
 -- Versión de PHP: 5.6.3
 
@@ -24,6 +24,20 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `commends`
+--
+
+CREATE TABLE IF NOT EXISTS `commends` (
+`id` int(11) NOT NULL,
+  `from` int(11) NOT NULL,
+  `to` int(11) NOT NULL,
+  `message` text COLLATE utf8_bin NOT NULL,
+  `time` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `stacks`
 --
 
@@ -33,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `stacks` (
   `time` bigint(20) NOT NULL,
   `ownerid` bigint(20) NOT NULL,
   `server` varchar(255) COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
 
@@ -45,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `stacks_players` (
 `id` int(11) NOT NULL,
   `stack` int(11) NOT NULL,
   `player` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
 
@@ -60,12 +74,25 @@ CREATE TABLE IF NOT EXISTS `users` (
   `avatar` varchar(2000) COLLATE utf8_bin NOT NULL,
   `lastRefresh` bigint(20) DEFAULT NULL,
   `ban` varchar(50) COLLATE utf8_bin DEFAULT '0',
-  `lastmessage` varchar(50) COLLATE utf8_bin NOT NULL DEFAULT '0'
+  `lastmessage` varchar(50) COLLATE utf8_bin NOT NULL DEFAULT '0',
+  `messageFromMods` text COLLATE utf8_bin,
+  `profile_set` varchar(5) COLLATE utf8_bin NOT NULL DEFAULT 'FALSE',
+  `commends` int(11) NOT NULL DEFAULT '0',
+  `position` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `adjective` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `servers` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `pref_server` varchar(255) COLLATE utf8_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Índices para tablas volcadas
 --
+
+--
+-- Indices de la tabla `commends`
+--
+ALTER TABLE `commends`
+ ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `stacks`
@@ -90,15 +117,20 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `commends`
+--
+ALTER TABLE `commends`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT de la tabla `stacks`
 --
 ALTER TABLE `stacks`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT de la tabla `stacks_players`
 --
 ALTER TABLE `stacks_players`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT de la tabla `users`
 --

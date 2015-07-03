@@ -1,7 +1,7 @@
 #TODO list
 
 * Improve sorting
-* Allow profile editing
+* When clicking "Edit profiles", have current values displayed as default.
 * Commend/Report buttons
 * Heroes on profiles
 

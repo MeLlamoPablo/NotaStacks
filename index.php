@@ -321,7 +321,7 @@ if(!isset($error)) $error = 'none';
                                 //List players
                                     echo '<div class="playerContainer">';
                                     for ($i2=0; $i2 < count($stacks[$i]->players); $i2++) { 
-                                        echo '<img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="64" height="64" />';
+                                        echo '<a href="profile.php?id='.$stacks[$i]->players[$i2]->id.'" target="_blank"><img src="'.$stacks[$i]->players[$i2]->avatar.'" alt="'.$stacks[$i]->players[$i2]->avatar.'\'s avatar width="64" height="64" /></a>';
                                     }
 
                                     //If there are less than 5 players, show join buttons

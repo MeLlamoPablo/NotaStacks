@@ -308,7 +308,12 @@ class Stack{
                 for ($i=0; $i < count($this->players); $i++) { 
                     $return .= '<tr>';
                         $return .= '<td style="width:11%;"><img src="'.$this->players[$i]->avatar.'" alt="'.$this->players[$i]->name.'\'s avatar width="48" height="48" /></td>';
-                        $return .= '<td><a href="'.$this->players[$i]->getURL().'" target="_blank">'.$this->players[$i]->name.'</a></td>';
+                        $return .= '<td><a href="profile.php?id='.$this->players[$i]->id.'" target="_blank">'.$this->players[$i]->name.'</a><br>';
+						$userLevel = new LevelManager($this->players[$i]->commends * 100);
+						global $mysqli;
+						$r = $mysqli->query("SELECT position, adjective FROM users WHERE id = ".$this->players[$i]->id);
+						$profile = $r->fetch_assoc();
+                        $return .= (isset($profile['adjective']) ? $profile['adjective'] : 'Level '.$userLevel->getCurrentLevel()).(isset($profile['position']) ? ' '.$profile['position'] : '').'</td>';
                     $return .= '</tr>';
                 }
             $return .= '</tbody>

@@ -49,6 +49,17 @@ if($GLOBAL_CONFIG['DEV_MODE'] AND isset($_GET['instaCommend'])){
 //Initialise the level manager
 $userLevel = new LevelManager($userProfile->commends * 100); //Each commend equals to 100 exp
 
+//If the user has commended another user
+if(isset($_POST['commendSubmit'])){
+	$commendedUser = new User('db', $_POST['toUser']);
+	if(!isset($_POST['commendMessage'])) die();
+	$message = htmlentities($mysqli->real_escape_string($_POST['commendMessage']));
+	$mysqli->query("INSERT INTO commends (`from`, `to`, `message`, `time`) VALUES ('".$loggedUser->id."', '".$commendedUser->id."', '".$message."', '".time()."')");
+	$mysqli->query("UPDATE users SET commends = commends + 1 WHERE id = ".$commendedUser->id);
+	//Re-initialise the $userLevel var
+	$userLevel = new LevelManager(($userProfile->commends + 1) * 100);
+}
+
 //If the user has created/edited his profile
 if(isset($_POST['editProfileSubmit'])){
 	if(isset($_POST['favPosition'])){
@@ -107,7 +118,7 @@ if(isset($_POST['editProfileSubmit'])){
 		$favServer = NULL;
 	}
 
-	/*$mysqli->query*/die("UPDATE users SET `profile_set` = 'TRUE'".(!is_null($favPosition) ? ", `position` = '".$favPosition."'" : "").(!is_null($adjective) ? ", `adjective` = '".$adjective."'" : "").(!is_null($servers) ? ", `servers` = '".$servers."'" : "").(!is_null($favServer) ? ", `pref_server` = '".$favServer."'" : "")." WHERE `id` = ".$loggedUser->id);
+	$mysqli->query("UPDATE users SET `profile_set` = 'TRUE'".(!is_null($favPosition) ? ", `position` = '".$favPosition."'" : "").(!is_null($adjective) ? ", `adjective` = '".$adjective."'" : "").(!is_null($servers) ? ", `servers` = '".$servers."'" : "").(!is_null($favServer) ? ", `pref_server` = '".$favServer."'" : "")." WHERE `id` = ".$loggedUser->id);
 }
 
 //If the user has refreshed his data
@@ -184,11 +195,33 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 					';
 					$modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Discard changes</button>
 					<button type="submit" name="editProfileSubmit" class="btn btn-'.($hasSetProfile ? 'primary' : 'success').'">Save changes</button>';
-					$editProfileModal = new Modal('editProfileModal', $hasSetProfile ? 'Edit my profile' : 'Create a NotA Stacks profile', $modalContent, $modalButtons, NULL, 'method="post" action"profile.php"');
+					$editProfileModal = new Modal('editProfileModal', $hasSetProfile ? 'Edit my profile' : 'Create a NotA Stacks profile', $modalContent, $modalButtons, NULL, 'method="post" action="profile.php"');
 					echo $editProfileModal->getModal();
 				}else{
-					echo '<button id="commendButton" class="btn btn-success" data-show="tooltip" data-placement="bottom" title="Commend this player"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button>';
-					echo '<button id="reportButton" class="btn btn-danger" data-show="tooltip" data-placement="bottom" title="Report this player"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></button>';
+					//Commend
+					echo '<button id="commendButton" data-toggle="modal" data-target="#commendModal" class="btn btn-success" data-show="tooltip" data-placement="bottom" title="Commend this player"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button>';
+					$commendModalContent = '
+
+					<div class="alert alert-warning" role="alert">Please, do not fake-commend. Only commend a player if you had a good time with him, if he was helpful, etc. Commending a player for no reason, or even worse, commending a player because he commended you, may result in a ban.</div>
+
+					<textarea required id="commendMessage" name="commendMessage" class="form-control custom-control" rows="2" style="resize:none" placeholder="Tell the player why you\'re commending him. Your message cannot make use of HTML tags."></textarea>
+					<input type="hidden" id="toUser" name="toUser" value="'.$userProfile->id.'">
+
+					';
+					$commendModalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Discard</button>
+					<button type="submit" name="commendSubmit" class="btn btn-default">Commend</button>';
+					$commendModal = new Modal('commendModal', 'Commend '.$userProfile->name, $commendModalContent, $commendModalButtons, NULL, 'method="post" action="profile.php?id='.$userProfile->id.'"');
+					echo $commendModal->getModal();
+
+					//Report
+					echo '<button id="reportButton" data-toggle="modal" data-target="#reportModal" class="btn btn-danger" data-show="tooltip" data-placement="bottom" title="Report this player"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></button>';
+					$reportModalContent = '
+
+					<div>The report system is not done yet. Please, if you have any problems with this player, speak to a NotA mod.</div>
+
+					';
+					$reportModal = new Modal('reportModal', 'Report '.$userProfile->name, $reportModalContent);
+					echo $reportModal->getModal();
 				}
 				echo '</div>';
 			}
@@ -239,6 +272,22 @@ if(isset($_GET['refresh']) AND $loggedUser !== NULL) $alert = ($loggedUser->refr
 							Click <a href="'.$userProfile->getUrl().'" target="_blank">here</a> to go to his Steam profile.';
 						}
 					}
+				echo '</div>
+			</div>
+			<div class="row">
+				<br>
+				<div class="well well-lg">
+					<h2>Commends</h2>';
+					$r = $mysqli->query("SELECT * FROM `commends` WHERE `to` = ".$userProfile->id);
+					echo '<table class="table">';
+					while($commends = $r->fetch_assoc()){
+						$from = new User('db', $commends['from']);
+						echo '<tr>';
+							echo '<td style="width: 10%"><a href="profile.php?id='.$from->id.'"><img width="64" height="64" class="img-responsive" src="'.$from->avatar.'" /></a></td>';
+							echo '<td style="width: 90%"><b><a href="profile.php?id='.$from->id.'">'.$from->name.'</a> says</b>: '.$commends['message'].'</td>';
+						echo '</tr>';
+					}
+					echo '</table>';
 				echo '</div>
 			</div>
 		</div>'
