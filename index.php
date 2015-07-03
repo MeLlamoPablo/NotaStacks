@@ -271,7 +271,7 @@ if(!isset($error)) $error = 'none';
         <div class="row stackContainter">
             <?php //Get the stacks and output them
             
-            $r = $mysqli->query("SELECT id FROM stacks WHERE time > ".(time() - 3600)); //We display upcoming stacks and also stacks that were already played up to one hour ago. We'll only display these if the user belongs to the stack.
+            $r = $mysqli->query("SELECT id FROM stacks WHERE time > ".(time() - (3600 * 24))); //We display upcoming stacks and also stacks that were already played up to one day ago. We'll only display these if the user belongs to the stack.
             for($i=1; $r2 = $r->fetch_assoc(); $i++){ //$i = 1; instead of $i = 0 because the row ID begins in 1
                 $stacks[$i] = new Stack($r2['id']);
                 //Does the user belongs to the stack?
