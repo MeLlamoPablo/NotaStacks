@@ -15,7 +15,9 @@ To install it, simply extract the app into a directory in your computer and open
 
 	$ bower update
 
-It will automatically download every dependency and the app will be ready to use.
+It will automatically download every dependency. Once done, edit `connect.php`, `config.php` and `steamauth/config.php` with your preferences.
+
+Then go to `DB_Setup.sql` and follow the instructions there.
 
 ### Credits
 
