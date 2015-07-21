@@ -119,6 +119,7 @@ if(isset($_POST['editProfileSubmit'])){
 	}
 
 	$mysqli->query("UPDATE users SET `profile_set` = 'TRUE'".(!is_null($favPosition) ? ", `position` = '".$favPosition."'" : "").(!is_null($adjective) ? ", `adjective` = '".$adjective."'" : "").(!is_null($servers) ? ", `servers` = '".$servers."'" : "").(!is_null($favServer) ? ", `pref_server` = '".$favServer."'" : "")." WHERE `id` = ".$loggedUser->id);
+	die('<meta http-equiv="refresh" content="0; url=profile.php" />');
 }
 
 //If the user has refreshed his data
