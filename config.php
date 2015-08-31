@@ -4,7 +4,7 @@
 $GLOBAL_CONFIG['site_name'] = 'NotA Stacks';
 
 //Dev mode. MUST set to FALSE before opening the product to the public.
-$GLOBAL_CONFIG['DEV_MODE'] = TRUE;
+$GLOBAL_CONFIG['DEV_MODE'] = FALSE;
 
 //Current version of the script
 $GLOBAL_CONFIG['version'] = '1.1';
