@@ -7,7 +7,7 @@ function logoutbutton() {
     echo "<form action=\"steamauth/logout.php\" method=\"post\"><input value=\"Logout\" type=\"submit\" /></form>"; //logout button
 }
 
-function steamlogin($aditionalVars = '')
+function steamlogin()
 {
 
 try {
@@ -20,32 +20,30 @@ try {
             header('Location: ' . $openid->authUrl());
         }
 
-    return "<form action=\"?login".(($aditionalVars === '') ? '' : '&'.http_build_query($aditionalVars))."\" method=\"post\"> <input type=\"image\" src=\"steamauth/signinthroughsteam.png\"></form>";
+    return "<form action='/notastacks/layout/index.php?login' method='post'> <input type='image' src='http://".$_SERVER['HTTP_HOST']."/notastacks/steamauth/signinthroughsteam.png'></form>";
     }
 
      elseif($openid->mode == 'cancel') {
         echo 'User has canceled authentication!';
     } else {
         if($openid->validate()) { 
-                $id = $openid->identity;
-                $ptn = "/^http:\/\/steamcommunity\.com\/openid\/id\/(7[0-9]{15,25}+)$/";
-                preg_match($ptn, $id, $matches);
-              
-                $_SESSION['steamid'] = $matches[1]; 
-
-                //Determine the return to page. We substract "login&"" to remove the login var from the URL.
-                //"file.php?login&foo=bar" would become "file.php?foo=bar"
-                $returnTo = str_replace('login&', '', $_GET['openid_return_to']);
-                //If it didn't change anything, it means that there's no additionals vars, so remove the login var so that we don't get redirected to Steam over and over.
-                if($returnTo === $_GET['openid_return_to']) $returnTo = str_replace('?login', '', $_GET['openid_return_to']);
-				header('Location: '.$returnTo);
+            $id = $openid->identity;
+            $ptn = "/^http:\/\/steamcommunity\.com\/openid\/id\/(7[0-9]{15,25}+)$/";
+            preg_match($ptn, $id, $matches);
+          
+            $_SESSION['steamid'] = $matches[1]; 
+            //Determine the return to page. We substract "login&"" to remove the login var from the URL.
+            //"file.php?login&foo=bar" would become "file.php?foo=bar"
+            $returnTo = str_replace('login&', '', $_GET['openid_return_to']);
+            //If it didn't change anything, it means that there's no additionals vars, so remove the login var so that we don't get redirected to Steam over and over.
+            if($returnTo === $_GET['openid_return_to']) $returnTo = str_replace('?login', '', $_GET['openid_return_to']);
+			header('Location: '.$returnTo);
         } else {
                 echo "User is not logged in.\n";
         }
-
     }
 } catch(ErrorException $e) {
-    echo $e->getMessage();
+    die($e->getMessage());
 }
 }
 

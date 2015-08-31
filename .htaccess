@@ -1,0 +1,42 @@
+RewriteEngine on
+
+###################
+## GENERAL RULES ##
+###################
+
+#If nothing is matched, redirect to the index
+RewriteRule ^$ /notastacks/layout/index.php
+
+#RewriteRule ^login/?$ /notastacks/layout/index.php?login
+
+###################
+# DASHBOARD RULES #
+###################
+
+#Join stack: if join/number/ is matched:
+RewriteRule ^join/([0-9]+)/?$ /notastacks/layout/index.php?joinStack=$1
+
+#Leave stack: if leave/number/ is matched
+RewriteRule ^leave/([0-9]+)/?$ /notastacks/layout/index.php?leaveStack=$1
+
+#Invitation: if invitation/number/ is matched
+RewriteRule ^invitation/([0-9]+)/?$ /notastacks/layout/index.php?i=$1
+
+#If the invited user has pressed the login button
+RewriteRule ^invitation/([0-9]+)/login/?$ /notastacks/layout/index.php?i=$1&login
+
+#If the dev mode is active and login as is used
+RewriteRule ^loginas/([0-9]+)/?$ /notastacks/layout/index.php?loginas=$1
+
+###################
+# PROFILES  RULES #
+###################
+
+#View self profile: if profiles/ or profiles/me/ is matched
+RewriteRule ^profiles/?$ /notastacks/profiles/me/ [R]
+RewriteRule ^profiles/me/?$ /notastacks/layout/profile.php
+
+RewriteRule ^profiles/me/refresh/?$ /notastacks/layout/profile.php?refresh
+
+#View other profile: if profiles/number/ is matched
+RewriteRule ^profiles/([0-9]+)/?$ /notastacks/layout/profile.php?id=$1

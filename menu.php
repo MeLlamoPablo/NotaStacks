@@ -86,7 +86,7 @@ echo $rulesModal->getModal();
 define('FOOTER',
 '<div id="footer" class="navbar navbar-default navbar-fixed-bottom">
     <div class="container">
-        <p class="navbar-text">Created by '.$GLOBAL_CONFIG['owner'].' for <a href="http://reddit.com/r/noobsoftheancient" target="_blank">/r/NoobsOfTheAncient</a>. Version '.$GLOBAL_CONFIG['version'].'. <a href="https://github.com/MeLlamoPablo/NotaStacks" target="_blank">Source code</a></p>
+        <p class="navbar-text">Created by '.$GLOBAL_CONFIG['owner'].' for <a href="http://reddit.com/r/noobsoftheancient" target="_blank">/r/NoobsOfTheAncient</a>. Version '.$GLOBAL_CONFIG['version'].'. <a href="https://github.com/MeLlamoPablo/NotaStacks" target="_blank">Source code</a>.</p>
     </div>
 </div>');
 ?>

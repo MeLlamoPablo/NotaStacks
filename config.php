@@ -1,13 +1,16 @@
 <?php
 
+//The site name
+$GLOBAL_CONFIG['site_name'] = 'NotA Stacks';
+
 //Dev mode. MUST set to FALSE before opening the product to the public.
-$GLOBAL_CONFIG['DEV_MODE'] = FALSE;
+$GLOBAL_CONFIG['DEV_MODE'] = TRUE;
 
 //Current version of the script
-$GLOBAL_CONFIG['version'] = '1.0';
+$GLOBAL_CONFIG['version'] = '1.1';
 
 //Owner of the script. If you forked it, please, either do not modify it or change the footer to credit the original author
-$GLOBAL_CONFIG['owner'] = 'Pablo Rodríguez (<a href="http://steamcommunity.com/id/MeLlamoPablo" target="_blank">MeLlamoPablo</a> a.k.a. <a href="http://www.reddit.com/user/sfcpfc" target="_blank">/u/sfcpfc</a>)';
+$GLOBAL_CONFIG['owner'] = 'Pablo Rodr&iacute;guez (<a href="http://steamcommunity.com/id/MeLlamoPablo" target="_blank">MeLlamoPablo</a> a.k.a. <a href="http://www.reddit.com/user/sfcpfc" target="_blank">/u/sfcpfc</a>)';
 
 //Supported servers. CANNOT contain "-"
 $GLOBAL_CONFIG['servers'] = array('USE', 'EUW', 'EUE');
@@ -29,8 +32,22 @@ $GLOBAL_CONFIG['rules'] = '
 
 ';
 
+//Welcome message. The message that is displayed to guests (non-logged users). Can use HTML.
+//%STEAM_LOGIN_BUTTON% must be present.
+$GLOBAL_CONFIG['welcome_message'] = '
+
+<div class="jumbotron" style="margin-top: -15px">
+    <h1>Find stacks. Get rampages.</h1>
+    <p>NotA Stacks is a tool that can match you with friendly players. Unorganized games and unwanted teammates are a thing of the past. Have fun.</p>
+    <p>
+        %STEAM_LOGIN_BUTTON%
+    <p>
+</div>
+
+';
+
 //Adjectives file
 //Adjectives are unlocked by players depending on the number of commends and are displayed right before the player's position. For example: "Awesome Midlaner". The more commends the player has, the better the unlocked adjectives are.
-$GLOBAL_CONFIG['adjectives'] = json_decode(file_get_contents('resources/adjectives.json'), TRUE);
+$GLOBAL_CONFIG['adjectives'] = json_decode(file_get_contents('../resources/adjectives.json'), TRUE);
 
 ?>

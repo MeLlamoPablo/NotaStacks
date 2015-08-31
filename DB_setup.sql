@@ -3,14 +3,12 @@
 -- Select it and go to phpMyAdmin and upload this file to the "Import" tab
 -- Then, connect your database by editing connect.php
 
--- --------------------------------------------------------
-
 -- phpMyAdmin SQL Dump
 -- version 4.2.11
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 03-07-2015 a las 16:55:20
+-- Tiempo de generación: 31-08-2015 a las 21:56:23
 -- Versión del servidor: 5.6.21
 -- Versión de PHP: 5.6.3
 
@@ -46,8 +44,9 @@ CREATE TABLE IF NOT EXISTS `stacks` (
   `gamemode` varchar(255) COLLATE utf8_bin NOT NULL,
   `time` bigint(20) NOT NULL,
   `ownerid` bigint(20) NOT NULL,
-  `server` varchar(255) COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `server` varchar(255) COLLATE utf8_bin NOT NULL,
+  `maxplayers` int(11) NOT NULL DEFAULT '5'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
 
@@ -59,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `stacks_players` (
 `id` int(11) NOT NULL,
   `stack` int(11) NOT NULL,
   `player` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
 
@@ -68,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `stacks_players` (
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
-`id` bigint(20) NOT NULL,
+`id` int(11) NOT NULL,
   `steamid` bigint(20) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `avatar` varchar(2000) COLLATE utf8_bin NOT NULL,
@@ -125,14 +124,14 @@ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 -- AUTO_INCREMENT de la tabla `stacks`
 --
 ALTER TABLE `stacks`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT de la tabla `stacks_players`
 --
 ALTER TABLE `stacks_players`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

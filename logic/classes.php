@@ -155,7 +155,7 @@ class User{
 		$hasAMessage = TRUE;
 		global $GLOBAL_CONFIG;
 		if($this->lastMessage == $GLOBAL_CONFIG['version']) $hasAMessage = FALSE;
-		require_once 'messages.php';
+		require_once '../messages.php';
 		$message = getMessage($this->lastMessage);
 		if($message === FALSE) $hasAMessage = FALSE;
 		if(!isset($message['closeButton'])) $message['closeButton'] = NULL;
@@ -214,6 +214,11 @@ class Stack{
 	public $players;
 
 	/**
+	 * @var int $maxplayers The maximum number of players
+	 */
+	public $maxplayers;
+
+	/**
 	 * @var string $gamemode The game mode that the stack will be playing 
 	 */
 	public $gamemode;
@@ -253,7 +258,7 @@ class Stack{
 		global $mysqli;
 		if($source === "provided"){
 			//The information is provided
-			if(!isset($data['players']) OR !isset($data['gamemode']) OR !isset($data['time']) OR !isset($data['ownerid']) OR !isset($data['server'])) return;
+			if(!isset($data['players']) OR !isset($data['maxplayers']) OR !isset($data['gamemode']) OR !isset($data['time']) OR !isset($data['ownerid']) OR !isset($data['server'])) return;
 
 			//Check if the provided $players is in the right format (an array with User objects)
 			if(!is_array($data['players'])) return;
@@ -262,11 +267,12 @@ class Stack{
 			}
 
 			//Store the data into the database
-			$mysqli->query("INSERT INTO stacks (`gamemode`, `time`, `ownerid`,`server`) VALUES ('".$mysqli->real_escape_string($data['gamemode'])."', '".$mysqli->real_escape_string($data['time'])."', '".$mysqli->real_escape_string($data['ownerid'])."', '".$mysqli->real_escape_string($data['server'])."');");
+			$mysqli->query("INSERT INTO stacks (`gamemode`, `time`, `ownerid`,`server`, `maxplayers`) VALUES ('".$mysqli->real_escape_string($data['gamemode'])."', '".$mysqli->real_escape_string($data['time'])."', '".$mysqli->real_escape_string($data['ownerid'])."', '".$mysqli->real_escape_string($data['server'])."', '".$mysqli->real_escape_string($data['maxplayers'])."');");
 
 			//Create the object
 			$this->id = $mysqli->insert_id;
 			$this->players = $data['players'];
+			$this->maxplayers = $data['maxplayers'];
 			$this->gamemode = $data['gamemode'];
 			$this->time = $data['time'];
 			$this->ownerid = $data['ownerid'];
@@ -289,6 +295,7 @@ class Stack{
 
 			$this->id = $r['id'];
 			$this->players = $players;
+			$this->maxplayers = $r['maxplayers'];
 			$this->gamemode = $r['gamemode'];
 			$this->time = $r['time'];
 			$this->ownerid = $r['ownerid'];
@@ -303,21 +310,21 @@ class Stack{
 	 * @return string The list of players
 	 */
 	public function listPlayers(){
-		$return ='<table class="table table-bordered table-striped">
-            <tbody>';
+		$return ="<table class='table table-bordered table-striped'>
+            <tbody>";
                 for ($i=0; $i < count($this->players); $i++) { 
-                    $return .= '<tr>';
-                        $return .= '<td style="width:11%;"><img src="'.$this->players[$i]->avatar.'" alt="'.$this->players[$i]->name.'\'s avatar width="48" height="48" /></td>';
-                        $return .= '<td><a href="profile.php?id='.$this->players[$i]->id.'" target="_blank">'.$this->players[$i]->name.'</a><br>';
+                    $return .= "<tr>";
+                        $return .= "<td style='width:11%;'><img src='".$this->players[$i]->avatar."' alt='".$this->players[$i]->name."'s avatar width='48' height='48' /></td>";
+                        $return .= "<td><a href='profile.php?id=".$this->players[$i]->id."' target='_blank'>".$this->players[$i]->name."</a><br>";
 						$userLevel = new LevelManager($this->players[$i]->commends * 100);
 						global $mysqli;
 						$r = $mysqli->query("SELECT position, adjective FROM users WHERE id = ".$this->players[$i]->id);
 						$profile = $r->fetch_assoc();
                         $return .= (isset($profile['adjective']) ? $profile['adjective'] : 'Level '.$userLevel->getCurrentLevel()).(isset($profile['position']) ? ' '.$profile['position'] : '').'</td>';
-                    $return .= '</tr>';
+                    $return .= "</tr>";
                 }
-            $return .= '</tbody>
-        </table>';
+            $return .= "</tbody>
+        </table>";
         return $return;
 	}
 
