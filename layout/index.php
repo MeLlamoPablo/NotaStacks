@@ -53,9 +53,11 @@ $data = $output;
         <?php $loggedUser->displayMessages();
 
         //Output all modals
-        foreach($data['modals'] as $key => $value){
-            $modal = new Modal($key, $value['title'], $value['content'], isset($value['buttons']) ? $value['buttons'] : NULL, NULL, isset($value['formAttributes']) ? $value['formAttributes'] : NULL);
-            echo $modal->getModal($value['autocall']);
+        if(isset($data['modals'])){
+            foreach($data['modals'] as $key => $value){
+                $modal = new Modal($key, $value['title'], $value['content'], isset($value['buttons']) ? $value['buttons'] : NULL, NULL, isset($value['formAttributes']) ? $value['formAttributes'] : NULL);
+                echo $modal->getModal($value['autocall']);
+            }
         }
 
         ?>
@@ -228,7 +230,7 @@ $data = $output;
 
         <div id="footer" class="navbar navbar-default navbar-fixed-bottom">
             <div class="container">
-                <p class="navbar-text">Created by <?php echo $GLOBAL_CONFIG['owner'] ?> for <a href="http://reddit.com/r/townofsalemgame" target="_blank">/r/TownOfSalemGame</a>. Version <?php echo $GLOBAL_CONFIG['version'] ?>. <a href="https://github.com/MeLlamoPablo/NotaStacks" target="_blank">Source code</a>.</p>
+                <p class="navbar-text">Created by <?php echo $GLOBAL_CONFIG['owner'] ?> for <a href="http://reddit.com/r/townofsalemgame" target="_blank">/r/TownOfSalemGame</a>. Version <?php echo $GLOBAL_CONFIG['version'] ?>. <a href="https://github.com/MeLlamoPablo/NotaStacks/tree/tos-parties" target="_blank">Source code</a>.</p>
             </div>
         </div>
     </div>

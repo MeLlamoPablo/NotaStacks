@@ -16,6 +16,10 @@ $data = $output;
 <body>
 	<div class="container" id="wrap">
 		<?php include 'menu.php';
+		//Prepare the rules modal
+   		$rulesModal = new Modal('rulesModal', $GLOBAL_CONFIG['site_name'].'\' rules', $GLOBAL_CONFIG['rules']);
+    	echo $rulesModal->getModal();
+
 		echo
 
 		'<div class="jumbotron" style="margin-top: -15px">';
@@ -132,7 +136,7 @@ $data = $output;
 		; ?>
 		<div id="footer" class="navbar navbar-default navbar-fixed-bottom">
             <div class="container">
-                <p class="navbar-text">Created by <?php echo $GLOBAL_CONFIG['owner'] ?> for <a href="http://reddit.com/r/noobsoftheancient" target="_blank">/r/NoobsOfTheAncient</a>. Version <?php echo $GLOBAL_CONFIG['version'] ?>. <a href="https://github.com/MeLlamoPablo/NotaStacks" target="_blank">Source code</a>.</p>
+                <p class="navbar-text">Created by <?php echo $GLOBAL_CONFIG['owner'] ?> for <a href="http://reddit.com/r/townofsalemgame" target="_blank">/r/TownOfSalemGame</a>. Version <?php echo $GLOBAL_CONFIG['version'] ?>. <a href="https://github.com/MeLlamoPablo/NotaStacks/tree/tos-parties" target="_blank">Source code</a>.</p>
             </div>
         </div>
 	</div>
