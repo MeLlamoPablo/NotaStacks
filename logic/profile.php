@@ -37,7 +37,7 @@ $r = $r->fetch_assoc();
 
 $hasSetProfile = ($r['profile_set'] === 'TRUE') ? TRUE : FALSE;
 if($hasSetProfile){
-	$r = $mysqli->query("SELECT position, adjective, servers, pref_server FROM users WHERE id = ".$output['userProfile']->id);
+	$r = $mysqli->query("SELECT position, adjective FROM users WHERE id = ".$output['userProfile']->id);
 	$output['profile'] = $r->fetch_assoc();
 }
 
@@ -62,29 +62,11 @@ if(isset($_POST['commendSubmit'])){
 
 //If the user has created/edited his profile
 if(isset($_POST['editProfileSubmit'])){
-	if(isset($_POST['favPosition'])){
-		switch ($_POST['favPosition']) {
-			case 'position_carry':
-				$favPosition = 'Safelane Carry';
-				break;
-			case 'position_mid':
-				$favPosition = 'Midlaner';
-				break;
-			case 'position_off':
-				$favPosition = 'Offlaner';
-				break;
-			case 'position_supp':
-				$favPosition = 'Support';
-				break;
-			case 'position_hsupp':
-				$favPosition = 'Hard Support';
-				break;
-			default:
-				$favPosition = NULL;
-				break;
-		}
+	if(isset($_POST['favRole'])){
+		$favRole_number = str_replace("role_", "", $_POST['favRole']);
+		$favRole = $GLOBAL_CONFIG['roles'][$favRole_number];
 	}else{
-		$favPosition = NULL;
+		$favRole = NULL;
 	}
 	
 	if(isset($_POST['adjective']) AND $_POST['adjective'] !== 'null'){
@@ -93,32 +75,13 @@ if(isset($_POST['editProfileSubmit'])){
 		if($GLOBAL_CONFIG['adjectives'][$i]['level'] <= $output['userLevel']->getCurrentLevel()){
 			$adjective = $GLOBAL_CONFIG['adjectives'][$i]['adjective'];
 		}else{
-			die('An error has occurred while trying to proccess your adjective. If you didn\'t try to inject code, please contact the admins. If you did, fuck you. To workaround this, don\'t select any adjective for now. We apologize for the inconveniences caused.<meta http-equiv="refresh" content="3; url=profile.php" />');
+			die('An error has occurred while trying to proccess your adjective. If you didn\'t try to inject code, please contact the admins. If you did, fuck you. To workaround this, don\'t select any adjective for now. We apologize for the inconveniences caused.<meta http-equiv="refresh" content="3; url=/notastacks/profiles/me" />');
 		}
 	}else{
 		$adjective = NULL;
 	}
 
-	for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){
-		if(isset($_POST['server_'.$GLOBAL_CONFIG['servers'][$i]]))
-			$servers[$i] = str_replace('server_', '', $_POST['server_'.$GLOBAL_CONFIG['servers'][$i]]);
-			//echo $servers[$i];
-		if(isset($servers[$i]) AND !in_array($servers[$i], $GLOBAL_CONFIG['servers']))
-			die('An error has occured while trying to proccess your servers. If you didn\'t try to inject code, please contact the admins. If you did, fuck you. To workaround this, don\'t select any servers for now. We apologize for the inconveniences caused.<meta http-equiv="refresh" content="3; url=profile.php" />');
-	}
-	$servers = isset($servers) ? implode('-', $servers) : NULL;
-
-	if(isset($_POST['favServer'])){
-		if(in_array($_POST['favServer'], $GLOBAL_CONFIG['servers'])){
-			$favServer = $_POST['favServer'];
-		}else{
-			$favServer = NULL;
-		}
-	}else{
-		$favServer = NULL;
-	}
-
-	$mysqli->query("UPDATE users SET `profile_set` = 'TRUE'".(!is_null($favPosition) ? ", `position` = '".$favPosition."'" : "").(!is_null($adjective) ? ", `adjective` = '".$adjective."'" : "").(!is_null($servers) ? ", `servers` = '".$servers."'" : "").(!is_null($favServer) ? ", `pref_server` = '".$favServer."'" : "")." WHERE `id` = ".$loggedUser->id);
+	$mysqli->query("UPDATE users SET `profile_set` = 'TRUE'".(!is_null($favRole) ? ", `position` = '".$favRole."'" : "").(!is_null($adjective) ? ", `adjective` = '".$adjective."'" : "")." WHERE `id` = ".$loggedUser->id);
 	header('Location: /notastacks/profiles/me/');
 	die();
 }

@@ -28,53 +28,26 @@ $data = $output;
 					'<button '.(($loggedUser->timeSinceLastRefresh() > $GLOBAL_CONFIG['refreshWaitTime']) ? 'onclick="window.location.replace(\'/notastacks/profiles/me/refresh\')" ' : '').'id="refreshButton" class="btn btn-primary'.(($loggedUser->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) ? ' disabled' : '' ).'" data-show="tooltip" data-placement="bottom" title="Doing this will download your new avatar and name from Steam to the server. For performance reasons, you can only do this every 24 hours.">Refresh data from Steam</button>';
 					$modalContent = '
 
-					'.(!$hasSetProfile ? '<div>Creating a '.$GLOBAL_CONFIG['site_name'].' profile allows you to give information about your playstile, your likes, your availability, etc. You do not have to fill every field, but it\'s encouraged to give as much information as possible to find the best match.</div>' : '').'
+					'.(!$hasSetProfile ? '<div>Creating a '.$GLOBAL_CONFIG['site_name'].' profile allows you to give information about your likes. You do not have to fill every field.</div>' : '').'
 
-					<h4>Favourite position</h4>
-					<div class="btn-toolbar"><div class="btn-group" data-toggle="buttons">
-						<label class="position btn btn-default" data-value="position_carry"><input type="radio" id="position_carry">Safelane Carry</label>
-						<label class="position btn btn-default" data-value="position_mid"><input type="radio" id="position_mid">Midlaner</label>
-						<label class="position btn btn-default" data-value="position_off"><input type="radio" id="position_off">Offlaner</label>
-						<label class="position btn btn-default" data-value="position_supp"><input type="radio" id="position_supp">Support</label>
-						<label class="position btn btn-default" data-value="position_hsupp"><input type="radio" id="position_hsupp">Hard Support</label>
-						<input type="hidden" id="favPosition" name="favPosition">
-					</div></div>
-					<script type="text/javascript">
-					$(".position").click(function(){
-						$("#favPosition").val($(this).attr("data-value"));
-					});
-					</script>
+					<h4>Favourite role</h4>
+					<select name="favRole" class="chosen-select" data-placeholder="Chose your favourite role" style="width:350px;">
+						<option value="null"></option>';
+						for($i=0; isset($GLOBAL_CONFIG['roles'][$i]); $i++){ 
+							$modalContent .= '<option value="role_'.$i.'">'.$GLOBAL_CONFIG['roles'][$i].'</option>';
+						}
+					$modalContent .= '</select>
 
 					<h4>Adjective</h4>
-					<div>Adjectives are unlocked by leveling up. Be nice and friendly to your teammates, and they may commend you. You can chose to display an adjective before your position.</div>
+					<div>Adjectives are unlocked by leveling up. Be nice and friendly to your teammates, and they may commend you. You can chose to display an adjective before your favourite role.</div>
 					<select name="adjective" class="chosen-select" data-placeholder="Chose an adjective" style="width:350px;">
 						<option value="null"></option>';
 						for($i=0; isset($GLOBAL_CONFIG['adjectives'][$i]); $i++){ 
 							if($GLOBAL_CONFIG['adjectives'][$i]['level'] <= $data['userLevel']->getCurrentLevel())
 								$modalContent .= '<option value="adj_'.$i.'">'.$GLOBAL_CONFIG['adjectives'][$i]['adjective'].'</option>';
 						}
-					$modalContent .= '</select>
+					$modalContent .= '</select>';
 
-					<h4>Servers</h4>
-					<div>Select the servers on wich you are available to play</div>';
-					for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
-                        $modalContent .= '<label class="checkbox-inline">';
-                            $modalContent .= '<input type="checkbox" id="'.$GLOBAL_CONFIG['servers'][$i].'check" name="server_'.$GLOBAL_CONFIG['servers'][$i].'" value="server_'.$GLOBAL_CONFIG['servers'][$i].'"> '.$GLOBAL_CONFIG['servers'][$i];
-                        $modalContent .= '</label>';
-                    }
-                    $modalContent .= '<div>Select your preferred server</div>
-                    <div class="btn-toolbar"><div class="btn-group" data-toggle="buttons">';
-                    for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
-                         $modalContent .= '<label class="server btn btn-default" data-value="'.$GLOBAL_CONFIG['servers'][$i].'"><input type="radio" id="prefserver_'.$GLOBAL_CONFIG['servers'][$i].'">'.$GLOBAL_CONFIG['servers'][$i].'</label>';
-                    }
-                    $modalContent .= '</div></div>
-                    <input type="hidden" id="favServer" name="favServer">
-                    <script type="text/javascript">
-					$(".server").click(function(){
-						$("#favServer").val($(this).attr("data-value"));
-					});
-					</script>
-					';
 					$modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Discard changes</button>
 					<button type="submit" name="editProfileSubmit" class="btn btn-'.($hasSetProfile ? 'primary' : 'success').'">Save changes</button>';
 					$editProfileModal = new Modal('editProfileModal', $hasSetProfile ? 'Edit my profile' : 'Create a '.$GLOBAL_CONFIG['site_name'].' profile', $modalContent, $modalButtons, NULL, 'method="post" action="http://'.$_SERVER['HTTP_HOST'].'/notastacks/profiles/me/"');
@@ -123,27 +96,8 @@ $data = $output;
 					if($hasSetProfile){
 						echo '<h3>'.(isset($data['profile']['adjective']) ? $data['profile']['adjective'] : 'Level '.$data['userLevel']->getCurrentLevel()).(isset($data['profile']['position']) ? ' '.$data['profile']['position'] : '').'</h3>';
 						echo '<ul>';
-							if(isset($data['profile']['servers'])){
-								echo '<li>This user can play on ';
-								$servers = explode('-', $data['profile']['servers']);
-								$totalServers = count($servers);
-								foreach($servers as $key => $value){
-									echo $value;
-									//If there's more than one server, we'll need to add commas (",") and "or"
-                                    if($totalServers > 1){
-                                        //Add a comma on every server but the last one
-                                        if(($key+1) !== $totalServers) echo ', ';
-                                        //Add "or" before the last one
-                                        if(($key+2) === $totalServers) echo 'and ';
-
-                                    }
-								}
-								echo '.</li>';
-							}
-							if(isset($data['profile']['pref_server'])){
-								echo '<li>He prefers to play on '.$data['profile']['pref_server'].'.</li>';
-							}
-								echo '<li>Here\'s a <a href="'.$data['userProfile']->getUrl().'" target="_blank">link to his Steam profile</a>.</li>';
+							echo '<li><b>ToS name</b>: '.$data['userProfile']->tos_name.'</li>';
+							echo '<li>Here\'s a <a href="'.$data['userProfile']->getUrl().'" target="_blank">link to his Steam profile</a>.</li>';
 						echo '</ul>';
 					}else{
 						if(($loggedUser !== NULL) AND ($loggedUser->id === $data['userProfile']->id)){
@@ -151,7 +105,8 @@ $data = $output;
 							Click the button above to do it.';
 						}else{
 							echo '<p>This user hasn\'t configured his '.$GLOBAL_CONFIG['site_name'].' profile yet.<br>
-							Click <a href="'.$data['userProfile']->getUrl().'" target="_blank">here</a> to go to his Steam profile.';
+							Click <a href="'.$data['userProfile']->getUrl().'" target="_blank">here</a> to go to his Steam profile.<br>
+							<b>ToS name</b>: '.$data['userProfile']->tos_name;
 						}
 					}
 				echo '</div>

@@ -8,7 +8,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-08-2015 a las 21:56:23
+-- Tiempo de generación: 02-09-2015 a las 16:27:52
 -- Versión del servidor: 5.6.21
 -- Versión de PHP: 5.6.3
 
@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS `stacks` (
   `gamemode` varchar(255) COLLATE utf8_bin NOT NULL,
   `time` bigint(20) NOT NULL,
   `ownerid` bigint(20) NOT NULL,
-  `server` varchar(255) COLLATE utf8_bin NOT NULL,
   `maxplayers` int(11) NOT NULL DEFAULT '5'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -70,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 `id` int(11) NOT NULL,
   `steamid` bigint(20) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `tos_name` varchar(255) COLLATE utf8_bin NOT NULL,
   `avatar` varchar(2000) COLLATE utf8_bin NOT NULL,
   `lastRefresh` bigint(20) DEFAULT NULL,
   `ban` varchar(50) COLLATE utf8_bin DEFAULT '0',
@@ -78,9 +78,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `profile_set` varchar(5) COLLATE utf8_bin NOT NULL DEFAULT 'FALSE',
   `commends` int(11) NOT NULL DEFAULT '0',
   `position` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `adjective` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `servers` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `pref_server` varchar(255) COLLATE utf8_bin DEFAULT NULL
+  `adjective` varchar(255) COLLATE utf8_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --

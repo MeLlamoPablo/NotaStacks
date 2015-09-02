@@ -24,6 +24,11 @@ class User{
 	public $name;
 
 	/**
+	 * @var string $tos_name The user's username on Town of Salem
+	 */
+	public $tos_name;
+
+	/**
 	 * @var string $avatar An URL to the user's Steam full avatar (128px)
 	 */
 	public $avatar;
@@ -76,6 +81,7 @@ class User{
 				$this->steamid = $r['steamid'];
 				$this->id = $r['id'];
 				$this->name = $r['name'];
+				$this->tos_name = $r['tos_name'];
 				$this->avatar = $r['avatar'];
 				$this->lastRefresh = $r['lastRefresh'];
 				$this->ban = $r['ban'];
@@ -229,11 +235,6 @@ class Stack{
 	public $time;
 
 	/**
-	 * @var string $server The servers where the Stack will play, separated by dashes ("-")
-	 */
-	public $server;
-
-	/**
 	 * @var int $ownerid The ID of the user who created the stack
 	 */
 	public $ownerid;
@@ -258,7 +259,7 @@ class Stack{
 		global $mysqli;
 		if($source === "provided"){
 			//The information is provided
-			if(!isset($data['players']) OR !isset($data['maxplayers']) OR !isset($data['gamemode']) OR !isset($data['time']) OR !isset($data['ownerid']) OR !isset($data['server'])) return;
+			if(!isset($data['players']) OR !isset($data['maxplayers']) OR !isset($data['gamemode']) OR !isset($data['time']) OR !isset($data['ownerid'])) return;
 
 			//Check if the provided $players is in the right format (an array with User objects)
 			if(!is_array($data['players'])) return;
@@ -267,7 +268,7 @@ class Stack{
 			}
 
 			//Store the data into the database
-			$mysqli->query("INSERT INTO stacks (`gamemode`, `time`, `ownerid`,`server`, `maxplayers`) VALUES ('".$mysqli->real_escape_string($data['gamemode'])."', '".$mysqli->real_escape_string($data['time'])."', '".$mysqli->real_escape_string($data['ownerid'])."', '".$mysqli->real_escape_string($data['server'])."', '".$mysqli->real_escape_string($data['maxplayers'])."');");
+			$mysqli->query("INSERT INTO stacks (`gamemode`, `time`, `ownerid`, `maxplayers`) VALUES ('".$mysqli->real_escape_string($data['gamemode'])."', '".$mysqli->real_escape_string($data['time'])."', '".$mysqli->real_escape_string($data['ownerid'])."', '".$mysqli->real_escape_string($data['maxplayers'])."');");
 
 			//Create the object
 			$this->id = $mysqli->insert_id;
@@ -276,7 +277,6 @@ class Stack{
 			$this->gamemode = $data['gamemode'];
 			$this->time = $data['time'];
 			$this->ownerid = $data['ownerid'];
-			$this->server = $data['server'];
 
 			//Store the relations between this stack and its player in stacks_players
 			for ($i=0; isset($this->players[$i]); $i++) { 
@@ -299,7 +299,6 @@ class Stack{
 			$this->gamemode = $r['gamemode'];
 			$this->time = $r['time'];
 			$this->ownerid = $r['ownerid'];
-			$this->server = $r['server'];
 			return;
 		}
 	}
@@ -315,7 +314,7 @@ class Stack{
                 for ($i=0; $i < count($this->players); $i++) { 
                     $return .= "<tr>";
                         $return .= "<td style='width:11%;'><img src='".$this->players[$i]->avatar."' alt='".$this->players[$i]->name."'s avatar width='48' height='48' /></td>";
-                        $return .= "<td><a href='profile.php?id=".$this->players[$i]->id."' target='_blank'>".$this->players[$i]->name."</a><br>";
+                        $return .= "<td><a href='/notastacks/profiles/".$this->players[$i]->id."/' target='_blank'>".$this->players[$i]->name."</a> (<b>ToS name</b>: ".$this->players[$i]->tos_name.")<br>";
 						$userLevel = new LevelManager($this->players[$i]->commends * 100);
 						global $mysqli;
 						$r = $mysqli->query("SELECT position, adjective FROM users WHERE id = ".$this->players[$i]->id);
@@ -408,7 +407,7 @@ class Modal{
 	 */
 	public function getModal($autoCall = FALSE){
 		//If there are two autoCall modals, this will determine if there was a previous modal auto called.
-		//If there was, we will get its id and store it in $last. By doing this we'll be abel to call the second modal once the first is closed, instead of calling both at the same time.
+		//If there was, we will get its id and store it in $last. By doing this we'll be able to call the second modal once the first is closed, instead of calling both at the same time.
 		$last = (count(Modal::$autoCallModals) !== 0) ? array_pop(Modal::$autoCallModals) : NULL;
 		//If the modal is auto called, we add it to the autoCallModals array
 		if($autoCall) Modal::$autoCallModals[] = $this->id;
@@ -430,6 +429,10 @@ class Modal{
 			'</div>'.// /.modal
 
 			($autoCall ? '<script type="text/javascript">
+				/*
+					$last - '.$last.'
+					Modal::$autoCallModals[0] - '.Modal::$autoCallModals[0].'
+				*/
 				$( document ).ready(function(){
 					'.(!is_null($last) ? '$(\'#'.$last.'\').on(\'hidden.bs.modal\', function (e) {' : '').'
 						$(\'#'.$this->id.'\').modal();

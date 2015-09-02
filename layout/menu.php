@@ -7,7 +7,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <div class="navbar-brand">NotA Stacks<span style="vertical-align: sub; font-size:60%;">ßeta</span> <?php if($GLOBAL_CONFIG['DEV_MODE']){ echo '<span class="label label-danger" data-show="tooltip" data-placement="bottom" title="The Dev Mode is currently on. It enables serious security issues that are useful for testing purposes but must be disabled for general usage. So if you\'re an end user and are seeing this, it means that the developer is a careless fuck. Tell him to disable this ASAP.">DEV MODE</span>';} ?></div>
+            <div class="navbar-brand"><?php echo $GLOBAL_CONFIG['site_name'] ?><span style="vertical-align: sub; font-size:60%;">ßeta</span> <?php if($GLOBAL_CONFIG['DEV_MODE']){ echo '<span class="label label-danger" data-show="tooltip" data-placement="bottom" title="The Dev Mode is currently on. It enables serious security issues that are useful for testing purposes but must be disabled for general usage. So if you\'re an end user and are seeing this, it means that the developer is a careless fuck. Tell him to disable this ASAP.">DEV MODE</span>';} ?></div>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">

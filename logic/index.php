@@ -17,7 +17,6 @@ if($_SERVER['REQUEST_URI'] === '/notastacks/layout/index.php'){
 
 //Site info
 $output['site_name'] = $GLOBAL_CONFIG['site_name'];
-$output['servers'] = $GLOBAL_CONFIG['servers'];
 
 //Check if the user has logged in
 if(isset($_SESSION['steamid'])){
@@ -26,15 +25,24 @@ if(isset($_SESSION['steamid'])){
     $r = $r->fetch_assoc();
     if(!isset($r)){
         $steamprofile = getInfo(); //TODO improve getInfo(); make it OOP.
-        $mysqli->query("INSERT INTO users (`steamid`, `name`, `avatar`) VALUES ('".$mysqli->real_escape_string($steamprofile['steamid'])."', '".$mysqli->real_escape_string($steamprofile['personaname'])."', '".$mysqli->real_escape_string($steamprofile['avatarfull'])."');");
-    }
+        $mysqli->query("INSERT INTO users (`steamid`, `name`, `tos_name`, `avatar`) VALUES ('".$mysqli->real_escape_string($steamprofile['steamid'])."', '".$mysqli->real_escape_string($steamprofile['personaname'])."', '".$mysqli->real_escape_string($steamprofile['personaname'])."', '".$mysqli->real_escape_string($steamprofile['avatarfull'])."');");
 
-    $r = $mysqli->query("SELECT * FROM users WHERE steamid = ". 1);
-    $r = $r->fetch_assoc();
+        //Ask for their ToS name
+        $output['modals']['tosNameModal'] = array(
+            'title' => 'Just one more thing!',
+            'content' => '<p>We need you to enter your ToS name, so that people can find you and add you in-game. If you don\'t enter it, we will assume that your ToS name is the same as your Steam name.<p>
+            <div class="input-group">
+                <span class="input-group-addon" id="tos_name_label">Town of Salem username</span>
+                <input type="text" id="tos_name" name="tos_name" class="form-control" value="'.$steamprofile['personaname'].'" />
+            </div>',
+            'autocall' => TRUE,
+            'buttons' => '<button type="submit" name="tos_name_submit" class="btn btn-default">Submit</button>',
+            'formAttributes' => 'method="post" action="/notastacks/"'
+        );
+    }
 
     //Create a logged user object
     $loggedUser = new User();
-
 }
 
 //"Login as" feature for testing purposes. It is only allowed with the DEV_MODE enabled, wich mustn't be in production.
@@ -52,51 +60,24 @@ if(isset($_POST['createStackButton'])){
     if(!isset($_POST['timePicker'])) die('The time information was not sent correctly. You shouldn\'t be seeing this error, though. Blame /u/sfcpfc for his incompetence. Or maybe upgrade to a browser that supports HTML5, you lazy.');
     $time = $mysqli->real_escape_string($_POST['timePicker']);
 
-    if(!isset($_POST['stackType'])) die('The stack type information was not sent correctly. You shouldn\'t be seeing this error, though. Blame /u/sfcpfc for his incompetence. Or maybe upgrade to a browser that supports HTML5, you lazy.');
-
-    if($_POST['stackType'] == 5 OR $_POST['stackType'] == 10){
-        $stackType = $mysqli->real_escape_string($_POST['stackType']);
-    }else{
-        $stackType = 5;
-    }
+    $stackType = 15;
 
     if($time < time()) die('You can\'t set a stack for the past');
 
-    $servers['string'] = '';
-    for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
-        if(isset($_POST[$GLOBAL_CONFIG['servers'][$i]])){
-            $servers[$GLOBAL_CONFIG['servers'][$i]] = TRUE;
-            $servers['string'] .= '-'.$GLOBAL_CONFIG['servers'][$i];
-        }else{
-            $servers[$GLOBAL_CONFIG['servers'][$i]] = FALSE;
-        }
-    }
-    $servers['string'] = substr($servers['string'], 1);
+    $createdStack = new Stack('provided', array(
+        'players' => array($loggedUser),
+        'maxplayers' => $stackType,
+        'gamemode' => $gamemode,
+        'time' => $time,
+        'ownerid' => $loggedUser->id)
+    );
+}
 
-    //TODO there might be a better way of doing this
-    function atLeastOneOfTheServersIsTrue($servers){
-        global $GLOBAL_CONFIG;
-        for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
-           if($servers[$GLOBAL_CONFIG['servers'][$i]] === TRUE) return TRUE;
-        }
-        return FALSE;
-    }
-
-    //If the user hasn't selected any server, stop the handle and output him an error.
-    //Else, continue with the handle
-    if(!atLeastOneOfTheServersIsTrue($servers)){
-        $output['error'] = 'noServerSelected';
-    }else{
-        $createdStack = new Stack('provided', array(
-            'players' => array($loggedUser),
-            'maxplayers' => $stackType,
-            'gamemode' => $gamemode,
-            'time' => $time,
-            'ownerid' => $loggedUser->id,
-            'server' => $servers['string'])
-        );
-    }
-
+//If the user has submited his ToS name
+if(isset($_POST['tos_name_submit'])){
+    $mysqli->query("UPDATE users SET tos_name = '".$mysqli->real_escape_string($_POST['tos_name'])."' WHERE id = ".$loggedUser->id);
+    header('Location: /notastacks/');
+    die();
 }
 
 //If the player has joined a stack
@@ -179,13 +160,6 @@ if(isset($_GET['i'])){
     }
 }
 
-//Prepare the rules modal
-$output['modals']['rulesModal'] = array(
-    'title' => $GLOBAL_CONFIG['site_name'].'\' rules',
-    'content' => $GLOBAL_CONFIG['rules'],
-    'autocall' => FALSE
-);
-
 if(!isset($loggedUser)){
     $output['user_logged_in'] = FALSE;
     //If the user hasn't signed in, we need the steam login button
@@ -212,7 +186,6 @@ if(!isset($loggedUser)){
             'gamemode' => $stacks[$i]->gamemode,
             'time' => $stacks[$i]->time,
             'ownerid' => $stacks[$i]->ownerid,
-            'servers' => explode('-', $stacks[$i]->server),
             'userBelongsToStack' => $userBelongsToStack,
             'playercount' => count($stacks[$i]->players),
             'maxplayers' => $stacks[$i]->maxplayers,

@@ -34,36 +34,40 @@ $data = $output;
     <div class="container" id="wrap">
 
     <?php include 'menu.php';
-
-    //Output all modals
-    foreach($data['modals'] as $key => $value){
-        $modal = new Modal($key, $value['title'], $value['content'], isset($value['buttons']) ? $value['buttons'] : NULL);
-        echo $modal->getModal($value['autocall']);
-    }
-
+    //Prepare the rules modal
+    $rulesModal = new Modal('rulesModal', $GLOBAL_CONFIG['site_name'].'\' rules', $GLOBAL_CONFIG['rules']);
+    echo $rulesModal->getModal();
     ?>
 
     <?php if($data['user_logged_in'] === FALSE):
     //If the user hasn't signed in, we show the welcome message. ?>
         <div class="jumbotron" style="margin-top: -15px">
-            <h1>Find stacks. Get rampages.</h1>
-            <p>NotA Stacks is a tool that can match you with friendly players. Unorganized games and unwanted teammates are a thing of the past. Have fun.</p>
+            <h1>Find parties. Lynch jesters.</h1>
+            <p>ToS Parties is a tool that helps you to organize <a href="http://www.blankmediagames.com/TownOfSalem/" target="_blank">Town of Salem games</a> with other players from <a href="https://www.reddit.com/r/townofsalemgame" target="_blank">/r/TownOfSalemGame</a>. Good luck, and have fun!</p>
             <p>
                 <?php echo $data['steam_login_button'] ?>
             <p>
         </div>
     <?php else: //$data['user_logged_in'] === FALSE
     //Stack dashboard?>
-        <?php $loggedUser->displayMessages() ?>
+        <?php $loggedUser->displayMessages();
+
+        //Output all modals
+        foreach($data['modals'] as $key => $value){
+            $modal = new Modal($key, $value['title'], $value['content'], isset($value['buttons']) ? $value['buttons'] : NULL, NULL, isset($value['formAttributes']) ? $value['formAttributes'] : NULL);
+            echo $modal->getModal($value['autocall']);
+        }
+
+        ?>
         <div id="joinedStacksRow" class="row">
-            <h3>Joined Stacks:</h3>
+            <h3>Joined Parties:</h3>
             <div id="joinedStacks" class=""></div>
         </div>
         <div class="row">
-            <h3>Available Stacks:</h3>
+            <h3>Available Parties:</h3>
             <div class="well well-sm col-sm-4 btn-group container center-block">
                 <!-- Add stack modal trigger -->
-                <button type="button" class="btn btn-default" aria-label="Create Stack" data-show="tooltip" data-placement="bottom" title="Create a new stack" data-toggle="modal" data-target="#addStack">
+                <button type="button" class="btn btn-default" aria-label="Create Party" data-show="tooltip" data-placement="bottom" title="Create a new party" data-toggle="modal" data-target="#addStack">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </button>
 
@@ -74,29 +78,14 @@ $data = $output;
                             <form action="/notastacks/" method="POST">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="addStack">Create a new Stack</h4>
+                                    <h4 class="modal-title" id="addStack">Create a new Party</h4>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Here you can create a Stack so that you can gather players and play with them!</p>
+                                    <p>Here you can create a Party so that you can gather players and play with them!</p>
                                     <h3>What will you be playing?</h3>
                                     <div class="input-group">
                                         <span class="input-group-addon" id="gamemodeLabel">Kind of games</span>
-                                        <input type="text" class="form-control" placeholder="e.g: &#34;Tryhard captains mode&#34; or &#34;Custom games&#34;" id="gamemode" name="gamemode" aria-describedby="gamemodeLabel" required="required">
-                                    </div>
-                                    <h3>What type of stack do you want?</h3>
-                                    <div class="input-group">
-                                        <div class="btn-toolbar">
-                                            <div class="btn-group" data-toggle="buttons">
-                                                <label class="server btn btn-default" data-value="5"><input type="radio" id="stackType_5'">Normal Stack (5 players)</label>
-                                                <label class="server btn btn-default" data-value="10"><input type="radio" id="stackType_10'">Inhouse (10 players)</label>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="stackType" name="stackType" value="5">
-                                        <script type="text/javascript">
-                                            $(".server").click(function(){
-                                                $("#stackType").val($(this).attr("data-value"));
-                                            });
-                                        </script>
+                                        <input type="text" class="form-control" placeholder="e.g: &#34;All Any&#34; or &#34;Ranked rolelist in custom&#34;" id="gamemode" name="gamemode" aria-describedby="gamemodeLabel" required="required">
                                     </div>
                                     <h3>When will you be playing?</h3>
                                     <div class="input-group">
@@ -131,63 +120,16 @@ $data = $output;
                                             </script>
                                         </div>
                                     </div>
-                                    <?php if ($data['error'] === 'noServerSelected') echo '<div class="alert alert-danger" role="alert">You need to select at least one server.</div>'; ?>
-                                    <h3>In what servers will you be playing?</h3>
-                                    <div class="input-group">
-                                        <?php
-                                        for($i=0; isset($GLOBAL_CONFIG['servers'][$i]); $i++){ 
-                                            echo '<label class="checkbox-inline">';
-                                                echo '<input type="checkbox" id="'.$GLOBAL_CONFIG['servers'][$i].'check" name="'.$GLOBAL_CONFIG['servers'][$i].'" value="'.$GLOBAL_CONFIG['servers'][$i].'"> '.$GLOBAL_CONFIG['servers'][$i];
-                                            echo '</label>';
-                                        }
-                                        ?>
-                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                    <button type="submit" name="createStackButton" class="btn btn-primary">Create the stack</button>
+                                    <button type="submit" name="createStackButton" class="btn btn-primary">Create the party</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="well well-sm col-sm-8 container center-block">
-                <div class="btn-group">
-                <?php
-
-                for($i=0; isset($data['servers'][$i]); $i++){
-                    //Code
-                    echo '<button id="toggle'.$GLOBAL_CONFIG['servers'][$i].'" type="button" class="btn btn-default active" aria-label="Show/hide '.$GLOBAL_CONFIG['servers'][$i].'" data-show="tooltip" data-placement="bottom" title="Show/hide stacks that only play on '.$GLOBAL_CONFIG['servers'][$i].'">
-                        '.$GLOBAL_CONFIG['servers'][$i].'
-                    </button>';
-                    //Script
-                    echo '<script type="text/javascript">';
-                        echo '$("#toggle'.$GLOBAL_CONFIG['servers'][$i].'").click(function(){
-                                if($(this).hasClass("active")){ //If the server is being shown
-                                    //Change the attribute to "HIDDEN". "HIDDEN" works the same way as "FALSE", but it can be recovered
-                                    $(".stack[data-'.$GLOBAL_CONFIG['servers'][$i].'=\'TRUE\']").attr("data-'.$GLOBAL_CONFIG['servers'][$i].'", "HIDDEN");
-                                    //"Un-press" the button
-                                    $(this).removeClass("active");
-                                    //Make the button lose focus
-                                    $(this).blur();
-                                    //Hide the stacks whose every data-%server% is either FALSE or HIDDEN
-                                    hideNotTrue();
-                                }else{
-                                    //Display the items whose data-'.$GLOBAL_CONFIG['servers'][$i].' is HIDDEN and change its attribute to "TRUE"
-                                    $(".stack[data-'.$GLOBAL_CONFIG['servers'][$i].'=\'HIDDEN\']").css("display", "inline");
-                                    $(".stack[data-'.$GLOBAL_CONFIG['servers'][$i].'=\'HIDDEN\']").attr("data-'.$GLOBAL_CONFIG['servers'][$i].'", "TRUE");
-                                    //"Press" the button
-                                    $(this).addClass("active");
-                                    //Make the button lose focus
-                                    $(this).blur();
-                                }
-                            });';
-                    echo '</script>';
-                }
-
-                ?>
-            </div><!-- /.btn-group -->
             </div>
         </div><!--/class="row"-->
         <div class="row stackContainter">
@@ -196,22 +138,6 @@ $data = $output;
             for($i=1; isset($data['stacks'][$i]); $i++){ //$i = 1; instead of $i = 0 because the row ID begins in 1
                 //Panel
                 echo '<div class="stack col-sm-4" id="stack'.$data['stacks'][$i]['id'].'" data-time="'.$data['stacks'][$i]['time'].'"';
-                    //Add the server data into the div
-                    //data-%server% can be:
-                        //TRUE - the stack will play on that server
-                        //FALSE - the stack won't play on that server
-                        //HIDDEN - the stack will play on that server, but the user doesn't want to show stacks that only play on that server
-                    $totalServers = count($data['stacks'][$i]['servers']);
-                    for($i2=0; isset($data['servers'][$i2]); $i2++){ 
-                        echo ' data-'.$data['servers'][$i2].'="';
-                        if(in_array($data['servers'][$i2], $data['stacks'][$i]['servers'])){
-                            echo 'TRUE';
-                        }else{
-                            echo 'FALSE';
-                        }
-                        echo '"';
-                    }
-
                 //Add the player data into the div
                 echo ' data-players="'.$data['stacks'][$i]['playercount'].'"';
                 echo ' data-userBelongsToStack="' . (($data['stacks'][$i]['userBelongsToStack']) ? 'TRUE' : 'FALSE') . '"';
@@ -244,12 +170,12 @@ $data = $output;
                                         if($data['stacks'][$i]['userBelongsToStack']){
                                             //If the player is already in the stack, show "looking for players" buttons
                                             $modalId = 'modalInvitetoStack'.$data['stacks'][$i]['id'];
-                                            $modalTitle = 'Invite firends to Stack #'.$data['stacks'][$i]['id'];
+                                            $modalTitle = 'Invite firends to Party #'.$data['stacks'][$i]['id'];
                                             $modalContent =
 
                                             '<p>If you want your friends to join, you can give them the following link to invite them:</p>
                                             <input if="inviteLink" class="form-control" value="http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'invitation/'.$stacks[$i]->id.'" type="text" readonly style="background-color: white;"></input>
-                                            <p>The following players have already joined the stack:</p>'
+                                            <p>The following players have already joined the party:</p>'
                                             .$data['stacks'][$i]['playerlist'];
 
                                             $modalButtons = NULL;
@@ -291,19 +217,6 @@ $data = $output;
                                     $('#timeRemainingForStack".$data['stacks'][$i]['id']."').html(stacktime.fromNow());
                                 </script>";
 
-                                //Output servers
-                                echo '<p>The stack will play in ';
-                                for($i2=0; $i2 < count($data['stacks'][$i]['servers']); $i2++){ 
-                                    echo $data['stacks'][$i]['servers'][$i2];
-                                    //If there's more than one server, we'll need to add commas (",") and "or"
-                                    if(count($data['stacks'][$i]['servers']) > 1){
-                                        //Add a comma on every server but the last one
-                                        if(($i2+1) !== count($data['stacks'][$i]['servers'])) echo ', ';
-                                        //Add "or" before the last one
-                                        if(($i2+2) === count($data['stacks'][$i]['servers'])) echo 'or ';
-
-                                    }
-                                }
                                 echo '</p>';
                             echo '</div>
                         </div>
@@ -315,7 +228,7 @@ $data = $output;
 
         <div id="footer" class="navbar navbar-default navbar-fixed-bottom">
             <div class="container">
-                <p class="navbar-text">Created by <?php echo $GLOBAL_CONFIG['owner'] ?> for <a href="http://reddit.com/r/noobsoftheancient" target="_blank">/r/NoobsOfTheAncient</a>. Version <?php echo $GLOBAL_CONFIG['version'] ?>. <a href="https://github.com/MeLlamoPablo/NotaStacks" target="_blank">Source code</a>.</p>
+                <p class="navbar-text">Created by <?php echo $GLOBAL_CONFIG['owner'] ?> for <a href="http://reddit.com/r/townofsalemgame" target="_blank">/r/TownOfSalemGame</a>. Version <?php echo $GLOBAL_CONFIG['version'] ?>. <a href="https://github.com/MeLlamoPablo/NotaStacks" target="_blank">Source code</a>.</p>
             </div>
         </div>
     </div>
