@@ -64,13 +64,75 @@ CREATE TABLE IF NOT EXISTS `stacks_players` (
 --
 -- Estructura de tabla para la tabla `users`
 --
+-- phpMyAdmin SQL Dump
+-- version 4.2.11
+-- http://www.phpmyadmin.net
+--
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 03-09-2015 a las 17:31:59
+-- Versión del servidor: 5.6.21
+-- Versión de PHP: 5.6.3
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- Base de datos: `notastacks`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `commends`
+--
+
+CREATE TABLE IF NOT EXISTS `commends` (
+`id` int(11) NOT NULL,
+  `from` int(11) NOT NULL,
+  `to` int(11) NOT NULL,
+  `message` text COLLATE utf8_bin NOT NULL,
+  `time` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `stacks`
+--
+
+CREATE TABLE IF NOT EXISTS `stacks` (
+`id` int(11) NOT NULL,
+  `gamemode` varchar(255) COLLATE utf8_bin NOT NULL,
+  `time` bigint(20) NOT NULL,
+  `ownerid` bigint(20) NOT NULL,
+  `maxplayers` int(11) NOT NULL DEFAULT '5'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `stacks_players`
+--
+
+CREATE TABLE IF NOT EXISTS `stacks_players` (
+`id` int(11) NOT NULL,
+  `stack` int(11) NOT NULL,
+  `player` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `users`
+--
 
 CREATE TABLE IF NOT EXISTS `users` (
 `id` int(11) NOT NULL,
   `steamid` bigint(20) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `password` varchar(255) COLLATE utf8_bin NOT NULL,
   `tos_name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `avatar` varchar(2000) COLLATE utf8_bin NOT NULL,
+  `avatar` varchar(2000) COLLATE utf8_bin NOT NULL DEFAULT 'http://localhost/notastacks/resources/avatar.png',
   `lastRefresh` bigint(20) DEFAULT NULL,
   `ban` varchar(50) COLLATE utf8_bin DEFAULT '0',
   `lastmessage` varchar(50) COLLATE utf8_bin NOT NULL DEFAULT '0',
