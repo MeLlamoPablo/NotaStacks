@@ -10,24 +10,10 @@ require_once '../connect.php';
 require_once 'classes.php';
 
 //Check if the user has logged in
-if(isset($_SESSION['steamid'])){
-    //Check if the user is not in the database
-    $r = $mysqli->query("SELECT steamid FROM users WHERE steamid = ".$_SESSION['steamid']);
-    $r = $r->fetch_assoc();
-    if(!isset($r)){
-        $steamprofile = getInfo(); //TODO improve getInfo(); make it OOP.
-        $mysqli->query("INSERT INTO users (`steamid`, `name`, `avatar`) VALUES ('".$mysqli->real_escape_string($steamprofile['steamid'])."', '".$mysqli->real_escape_string($steamprofile['personaname'])."', '".$mysqli->real_escape_string($steamprofile['avatarfull'])."');");
-    }
-
-    $r = $mysqli->query("SELECT * FROM users WHERE steamid = ". 1);
-    $r = $r->fetch_assoc();
-
-    //Create a logged user object
-    $loggedUser = new User();
-
+if(isset($_SESSION['userid'])){
+    $loggedUser = new User('db', $_SESSION['userid']);
 }else{
 	if(!isset($_GET['id'])) die('You need to log in to see your own profile.<meta http-equiv="refresh" content="3; url=/notastacks/" />');
-	$loggedUser = NULL;
 }
 
 //Get the var for the user profile and check if he has set his profile
@@ -62,7 +48,7 @@ if(isset($_POST['commendSubmit'])){
 
 //If the user has created/edited his profile
 if(isset($_POST['editProfileSubmit'])){
-	if(isset($_POST['favRole'])){
+	if(isset($_POST['favRole']) AND $_POST['favRole'] !== 'null'){
 		$favRole_number = str_replace("role_", "", $_POST['favRole']);
 		$favRole = $GLOBAL_CONFIG['roles'][$favRole_number];
 	}else{
@@ -81,11 +67,13 @@ if(isset($_POST['editProfileSubmit'])){
 		$adjective = NULL;
 	}
 
-	$mysqli->query("UPDATE users SET `profile_set` = 'TRUE'".(!is_null($favRole) ? ", `position` = '".$favRole."'" : "").(!is_null($adjective) ? ", `adjective` = '".$adjective."'" : "")." WHERE `id` = ".$loggedUser->id);
+	$avatar = (isset($_POST['avatar']) AND $_POST['avatar'] !== '') ? $mysqli->real_escape_string($_POST['avatar']) : NULL;
+
+	$mysqli->query("UPDATE users SET `profile_set` = 'TRUE'".(!is_null($favRole) ? ", `position` = '".$favRole."'" : "").(!is_null($adjective) ? ", `adjective` = '".$adjective."'" : "").(!is_null($avatar) ? ", `avatar` = '".$avatar."'" : "")." WHERE `id` = ".$loggedUser->id);
 	header('Location: /notastacks/profiles/me/');
 	die();
 }
 
 //If the user has refreshed his data
-if(isset($_GET['refresh']) AND $loggedUser !== NULL) $output['alert'] = ($loggedUser->refresh()) ? '<div class="alert alert-success" role="alert">Your information has been refreshed successfully.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' : NULL;
+//if(isset($_GET['refresh']) AND $loggedUser !== NULL) $output['alert'] = ($loggedUser->refresh()) ? '<div class="alert alert-success" role="alert">Your information has been refreshed successfully.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' : NULL;
 ?>

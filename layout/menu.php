@@ -21,7 +21,7 @@
                     $('#logout').click(function(){
                         var confirmDialog = confirm('Are you sure you want to log out?');
                         if(confirmDialog){
-                            window.location.replace('/notastacks/steamauth/logout.php');
+                            window.location.replace('/notastacks/logout');
                         }
                     });
                 });
@@ -39,3 +39,73 @@
         <!--/.nav-collapse -->
     </div>
 </nav>
+
+<?php
+
+//Prepare the login modal
+$loginModal['content'] = '
+<div class="input-group">
+    <span style="width: 95px;" class="input-group-addon" id="usernameLabel">Username</span>
+    <input type="text" class="form-control" id="username" name="username" aria-describedby="usernameLabel" required="required">
+</div>
+<div class="input-group">
+    <span style="width: 95px;" class="input-group-addon" id="passLabel">Password</span>
+    <input type="password" class="form-control" id="pass" name="pass" aria-describedby="passLabel" required="required">
+</div>'
+.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div id="captcha1"></div>' : '');
+$loginModal['buttons'] = '
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+<button type="submit" name="login_submit" class="btn btn-primary">Log In</button>
+';
+$loginModal['callButton'] = array(
+    'content' => 'Log in',
+    'attributes' => 'type="button" class="btn btn-primary btn-lg"'
+    );
+$loginModal['formAttributes'] = '
+method="post" action="http://'.$_SERVER['HTTP_HOST'].'/notastacks/"
+';
+$loginModal = new Modal('loginModal', 'Log in', $loginModal['content'], $loginModal['buttons'], $loginModal['callButton'], $loginModal['formAttributes'], 'small');
+echo $loginModal->getModal();
+
+//Prepare the register modal
+$registerModal['content'] = '
+<div class="alert alert-info alert-smallmargin" role="alert">You need to enter your Reddit username so that we can reset your password if you forget it (we can\'t use emails for that purpose, unafortunately).</div>
+<div class="input-group">
+    <span class="input-group-addon" id="usernameLabel">Reddit Username</span>
+    <input type="text" class="form-control" id="username" name="username" aria-describedby="usernameLabel" required="required">
+</div>
+<br>
+<div class="alert alert-info alert-smallmargin" role="alert">This doesn\'t need to be your Reddit password, but it can be. However, we do not recommend using the same password for multiple sites.</div>
+<div class="input-group">
+    <span class="input-group-addon" id="passLabel">Password</span>
+    <input type="password" class="form-control" id="pass" name="pass" aria-describedby="passLabel" required="required">
+</div>'
+.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div id="captcha2"></div>' : '');
+//.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div class="g-recaptcha" data-sitekey="'.$GLOBAL_CONFIG['ReCaptcha']['site_key'].'"></div>' : '');
+$registerModal['buttons'] = '
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+<button type="submit" name="register_submit" class="btn btn-primary">Sign Up</button>
+';
+$registerModal['callButton'] = array(
+    'content' => 'Sign Up',
+    'attributes' => 'type="button" class="btn btn-default btn-lg"'
+    );
+$registerModal['formAttributes'] = '
+method="post" action="http://'.$_SERVER['HTTP_HOST'].'/notastacks/"
+';
+$registerModal = new Modal('registerModal', 'Sign Up!', $registerModal['content'], $registerModal['buttons'], $registerModal['callButton'], $registerModal['formAttributes'], 'normal');
+echo $registerModal->getModal();
+
+//Render the captchas
+if($GLOBAL_CONFIG['ReCaptcha']['enabled']): ?>
+    <script type="text/javascript">
+        var onloadCallback = function() {
+            grecaptcha.render('captcha1', {
+                'sitekey' : '<?php echo $GLOBAL_CONFIG['ReCaptcha']['site_key']; ?>'
+            });
+            grecaptcha.render('captcha2', {
+                'sitekey' : '<?php echo $GLOBAL_CONFIG['ReCaptcha']['site_key']; ?>'
+            });
+        };
+    </script>
+<?php endif; ?>

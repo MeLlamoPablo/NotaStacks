@@ -45,7 +45,7 @@ $data = $output;
             <h1>Find parties. Lynch jesters.</h1>
             <p>ToS Parties is a tool that helps you to organize <a href="http://www.blankmediagames.com/TownOfSalem/" target="_blank">Town of Salem games</a> with other players from <a href="https://www.reddit.com/r/townofsalemgame" target="_blank">/r/TownOfSalemGame</a>. Good luck, and have fun!</p>
             <p>
-                <?php echo $data['steam_login_button'] ?>
+                <?php echo $loginModal->getCallButton().' '.$registerModal->getCallButton(); ?>
             <p>
         </div>
     <?php else: //$data['user_logged_in'] === FALSE

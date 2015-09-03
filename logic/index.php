@@ -2,12 +2,19 @@
 //Config
 require_once '../config.php';
 //Steamauth requires
-require_once '../steamauth/steamauth.php';
-require_once '../steamauth/userInfo.php';
+session_start();
+//require_once '../steamauth/steamauth.php';
+//require_once '../steamauth/userInfo.php';
 //DB requires
 require_once '../connect.php';
 //Classes
 require_once 'classes.php';
+
+if(isset($_GET['logout'])){
+    unset($_SESSION['userid']);
+    header('Location: /notastacks/');
+    die();
+}
 
 //If the URL is "ugly" (happens after someone logs in), refresh the page
 if($_SERVER['REQUEST_URI'] === '/notastacks/layout/index.php'){
@@ -18,8 +25,92 @@ if($_SERVER['REQUEST_URI'] === '/notastacks/layout/index.php'){
 //Site info
 $output['site_name'] = $GLOBAL_CONFIG['site_name'];
 
+//We're gonna need this function later to see if the user has passed the captcha
+function captcha_verify($response, $secret_key){
+    $url = 'https://www.google.com/recaptcha/api/siteverify';
+    $data = array(
+        'secret' => $secret_key,
+        'response' => $response,
+        'remoteip' => $_SERVER['REMOTE_ADDR']
+    );
+
+    $options = array(
+        'http' => array(
+            'secret'  => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method'  => 'POST',
+            'content' => http_build_query($data),
+        ),
+    );
+    $context  = stream_context_create($options);
+    @ $result = file_get_contents($url, false, $context);
+
+    $result = json_decode($result, TRUE);
+    return $result['success'];
+}
+
+//If the user has already logged in
+if(isset($_SESSION['userid'])){
+    $loggedUser = new User('db', $_SESSION['userid']);
+}elseif(isset($_POST['login_submit'])){ //If the user has logged in
+    //Do not accept petitons if the username or the password is missing, or the user hasn't completed the captcha, in case it's enabled
+    if(!isset($_POST['username']) OR !isset($_POST['pass']) OR (!isset($_POST['g-recaptcha-response']) AND $GLOBAL_CONFIG['ReCaptcha']['enabled'])){
+        header('Location: /notastacks/');
+        die();
+    }
+
+    $username = $mysqli->real_escape_string($_POST['username']);
+    $password = md5($_POST['pass']); //I wish I could use password_hash() but my shitty server is PHP 5.2 :(s    
+
+    if($GLOBAL_CONFIG['ReCaptcha']['enabled'] AND
+        !captcha_verify($_POST['g-recaptcha-response'], $GLOBAL_CONFIG['ReCaptcha']['secret_key'])){
+        die('The captcha was failed<meta http-equiv="refresh" content="3; url=/notastacks/" />');
+    }
+
+    $r = $mysqli->query("SELECT id, password FROM users WHERE name = '".$username."'");
+    $r = $r->fetch_assoc();
+
+    if(!isset($r['password'])) die('Wrong username<meta http-equiv="refresh" content="3; url=/notastacks/" />');
+    if($password !== $r['password']){
+        die('Wrong password<meta http-equiv="refresh" content="3; url=/notastacks/" />');
+    }else{
+        $_SESSION['userid'] = $r['id'];
+        $loggedUser = new User('db', $_SESSION['userid']);
+    }
+}elseif(isset($_POST['register_submit'])){ //If the user has registered
+    //Do not accept petitons if the username or the password is missing, or the user hasn't completed the captcha, in case it's enabled
+    if(!isset($_POST['username']) OR !isset($_POST['pass']) OR (!isset($_POST['g-recaptcha-response']) AND $GLOBAL_CONFIG['ReCaptcha']['enabled'])){
+        header('Location: /notastacks/');
+        die();
+    }
+
+    if($GLOBAL_CONFIG['ReCaptcha']['enabled'] AND
+        !captcha_verify($_POST['g-recaptcha-response'], $GLOBAL_CONFIG['ReCaptcha']['secret_key'])){
+        die('The captcha was failed<meta http-equiv="refresh" content="3; url=/notastacks/" />');
+    }
+
+    $username = $mysqli->real_escape_string($_POST['username']);
+    $password = md5($_POST['pass']); //I wish I could use password_hash() but my shitty server is PHP 5.2 :(
+
+    $mysqli->query("INSERT INTO users (`name`, `password`, `tos_name`) VALUES ('".$username."', '".$password."', '".$username."')");
+
+    //Ask for their ToS name
+    $output['modals']['tosNameModal'] = array(
+        'title' => 'Just one more thing!',
+        'content' => '<p>We need you to enter your ToS name, so that people can find you and add you in-game. If you don\'t enter it, we will assume that your ToS name is the same as your Reddit name.<p>
+        <div class="input-group">
+            <span class="input-group-addon" id="tos_name_label">Town of Salem username</span>
+            <input type="text" id="tos_name" name="tos_name" class="form-control" value="'.$username.'" />
+        </div>',
+        'autocall' => TRUE,
+        'buttons' => '<button type="submit" name="tos_name_submit" class="btn btn-default">Submit</button>',
+        'formAttributes' => 'method="post" action="/notastacks/"'
+    );
+    $_SESSION['userid'] = $mysqli->insert_id;
+    $loggedUser = new User('db', $_SESSION['userid']);
+}
+
 //Check if the user has logged in
-if(isset($_SESSION['steamid'])){
+/*if(isset($_SESSION['steamid'])){
     //Check if the user is not in the database
     $r = $mysqli->query("SELECT steamid FROM users WHERE steamid = ".$_SESSION['steamid']);
     $r = $r->fetch_assoc();
@@ -43,7 +134,7 @@ if(isset($_SESSION['steamid'])){
 
     //Create a logged user object
     $loggedUser = new User();
-}
+}*/
 
 //"Login as" feature for testing purposes. It is only allowed with the DEV_MODE enabled, wich mustn't be in production.
 if($GLOBAL_CONFIG['DEV_MODE'] AND isset($_GET['loginas'])){
@@ -163,7 +254,7 @@ if(isset($_GET['i'])){
 if(!isset($loggedUser)){
     $output['user_logged_in'] = FALSE;
     //If the user hasn't signed in, we need the steam login button
-    $output['steam_login_button'] = steamlogin();
+    //$output['steam_login_button'] = steamlogin();
     //$output['main_page'] = str_replace('%STEAM_LOGIN_BUTTON%', steamlogin(), $GLOBAL_CONFIG['welcome_message']);
 }else{
     $output['user_logged_in'] = TRUE;

@@ -28,8 +28,8 @@ $data = $output;
 			if($loggedUser !== NULL){
 				echo '<div class="row well well-sm container btn-group">';
 				if($loggedUser->id === $data['userProfile']->id){
-					echo '<button data-toggle="modal" data-target="#editProfileModal" id="editProfileButton" class="btn '.($hasSetProfile ? 'btn-default">Edit profile</button>' : 'btn-success">Create profile</button>').
-					'<button '.(($loggedUser->timeSinceLastRefresh() > $GLOBAL_CONFIG['refreshWaitTime']) ? 'onclick="window.location.replace(\'/notastacks/profiles/me/refresh\')" ' : '').'id="refreshButton" class="btn btn-primary'.(($loggedUser->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) ? ' disabled' : '' ).'" data-show="tooltip" data-placement="bottom" title="Doing this will download your new avatar and name from Steam to the server. For performance reasons, you can only do this every 24 hours.">Refresh data from Steam</button>';
+					echo '<button data-toggle="modal" data-target="#editProfileModal" id="editProfileButton" class="btn '.($hasSetProfile ? 'btn-default">Edit profile</button>' : 'btn-success">Create profile</button>');
+					//echo '<button '.(($loggedUser->timeSinceLastRefresh() > $GLOBAL_CONFIG['refreshWaitTime']) ? 'onclick="window.location.replace(\'/notastacks/profiles/me/refresh\')" ' : '').'id="refreshButton" class="btn btn-primary'.(($loggedUser->timeSinceLastRefresh() < $GLOBAL_CONFIG['refreshWaitTime']) ? ' disabled' : '' ).'" data-show="tooltip" data-placement="bottom" title="Doing this will download your new avatar and name from Steam to the server. For performance reasons, you can only do this every 24 hours.">Refresh data from Steam</button>';
 					$modalContent = '
 
 					'.(!$hasSetProfile ? '<div>Creating a '.$GLOBAL_CONFIG['site_name'].' profile allows you to give information about your likes. You do not have to fill every field.</div>' : '').'
@@ -50,7 +50,15 @@ $data = $output;
 							if($GLOBAL_CONFIG['adjectives'][$i]['level'] <= $data['userLevel']->getCurrentLevel())
 								$modalContent .= '<option value="adj_'.$i.'">'.$GLOBAL_CONFIG['adjectives'][$i]['adjective'].'</option>';
 						}
-					$modalContent .= '</select>';
+					$modalContent .= '</select>
+
+					<h4>Avatar</h4>
+					<div>You can use a custom avatar, just link it on the field below. The avatar will be resized to 200x200px.</div>
+					<div class="input-group">
+					    <span class="input-group-addon" id="avatarLabel">Avatar URL</span>
+					    <input type="text" class="form-control" id="avatar" name="avatar" aria-describedby="avatarLabel" placeholder="e.g: http://i.imgur.com/my_avatar.jpg">
+					</div>
+					';
 
 					$modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Discard changes</button>
 					<button type="submit" name="editProfileSubmit" class="btn btn-'.($hasSetProfile ? 'primary' : 'success').'">Save changes</button>';
@@ -93,7 +101,7 @@ $data = $output;
 					$(".progress .progress-bar").progressbar({display_text: "center", use_percentage: false, amount_format: function(p, t) {return "Level '.$data['userLevel']->getCurrentLevel().': "+ '.($data['userLevel']->getRemainingExpForNextLevel()/100).' +" commend'.((($data['userLevel']->getRemainingExpForNextLevel()/100) != 1) ? 's' : '').' to go.";}});
 				</script>';
 				echo '<div class="col-sm-3" style="text-align: right;">
-					<img src="'.$data['userProfile']->avatar.'" class="img-responsive img-thumbnail" />
+					<img src="'.$data['userProfile']->avatar.'" class="img-responsive img-thumbnail" width="200" height="200" />
 				</div>
 				<div clas="col-sm-9">
 					<h1>'.$data['userProfile']->name.((substr($data['userProfile']->name, -1) === 's') ? '\'' : '\'s').' profile</h1>';
@@ -101,16 +109,16 @@ $data = $output;
 						echo '<h3>'.(isset($data['profile']['adjective']) ? $data['profile']['adjective'] : 'Level '.$data['userLevel']->getCurrentLevel()).(isset($data['profile']['position']) ? ' '.$data['profile']['position'] : '').'</h3>';
 						echo '<ul>';
 							echo '<li><b>ToS name</b>: '.$data['userProfile']->tos_name.'</li>';
-							echo '<li>Here\'s a <a href="'.$data['userProfile']->getUrl().'" target="_blank">link to his Steam profile</a>.</li>';
+							//echo '<li>Here\'s a <a href="'.$data['userProfile']->getUrl().'" target="_blank">link to his Steam profile</a>.</li>';
 						echo '</ul>';
 					}else{
 						if(($loggedUser !== NULL) AND ($loggedUser->id === $data['userProfile']->id)){
 							echo '<p>You haven\'t configured your '.$GLOBAL_CONFIG['site_name'].' profile yet.<br>
 							Click the button above to do it.';
 						}else{
-							echo '<p>This user hasn\'t configured his '.$GLOBAL_CONFIG['site_name'].' profile yet.<br>
-							Click <a href="'.$data['userProfile']->getUrl().'" target="_blank">here</a> to go to his Steam profile.<br>
-							<b>ToS name</b>: '.$data['userProfile']->tos_name;
+							echo '<p>This user hasn\'t configured his '.$GLOBAL_CONFIG['site_name'].' profile yet.<br>';
+							//echo 'Click <a href="'.$data['userProfile']->getUrl().'" target="_blank">here</a> to go to his Steam profile.<br>';
+							echo '<b>ToS name</b>: '.$data['userProfile']->tos_name;
 						}
 					}
 				echo '</div>

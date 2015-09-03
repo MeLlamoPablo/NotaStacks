@@ -6,8 +6,13 @@ $GLOBAL_CONFIG['site_name'] = 'ToS Parties';
 //Dev mode. MUST set to FALSE before opening the product to the public.
 $GLOBAL_CONFIG['DEV_MODE'] = FALSE;
 
+//ReCaptcha settings
+$GLOBAL_CONFIG['ReCaptcha']['enabled']     = FALSE;
+$GLOBAL_CONFIG['ReCaptcha']['site_key']    = '';
+$GLOBAL_CONFIG['ReCaptcha']['secret_key']  = '';
+
 //Current version of the script
-$GLOBAL_CONFIG['version'] = '1.1';
+$GLOBAL_CONFIG['version'] = '1.2';
 
 //Owner of the script. If you forked it, please, either do not modify it or change the footer to credit the original author
 $GLOBAL_CONFIG['owner'] = 'Pablo Rodr&iacute;guez (<a href="http://steamcommunity.com/id/MeLlamoPablo" target="_blank">MeLlamoPablo</a> a.k.a. <a href="http://www.reddit.com/user/sfcpfc" target="_blank">/u/sfcpfc</a>)';

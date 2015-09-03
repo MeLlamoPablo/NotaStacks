@@ -71,7 +71,8 @@ class User{
 			case 'db':
 				global $mysqli;
 				if(!$getForUser){
-					$r = $mysqli->query("SELECT * FROM users WHERE steamid = ".$mysqli->real_escape_string($_SESSION['steamid']));
+					die('Error: Steam login requested');
+					//$r = $mysqli->query("SELECT * FROM users WHERE steamid = ".$mysqli->real_escape_string($_SESSION['steamid']));
 				}else{
 					$r = $mysqli->query("SELECT * FROM users WHERE id = ".$mysqli->real_escape_string($getForUser));
 				}
@@ -385,8 +386,9 @@ class Modal{
 	 * @param string $modalButtons The code for the modal buttons (i.e: discard and save). If empty or null, will generate a generic Close button.
 	 * @param array $callbutton An array with two elements: $callbutton['content'] and $callbutton['attributes']. The content will be placed inside the button and the attributes will be place inside the <button> tag. The attributes are optional, the content isn't. The entire parameter is optional, but the modal will need to be set in "autocall" to be displayed.
 	 * @param string $formAttributes If the modal itself is a form that must be sumbitted, a string containing the attributes for the <form> tag (i.e: "action="send.php" method="post"). If it isn't set, no form will be created.
+	 * @param string $size the size of the modal. Can be large, normal and small. Default is normal.
 	 */
-	public function __construct($id, $title, $content, $modalButtons = NULL, $callButton = NULL, $formAttributes = NULL){
+	public function __construct($id, $title, $content, $modalButtons = NULL, $callButton = NULL, $formAttributes = NULL, $size = NULL){
 		$this->id = $id;
 		$this->title = $title;
 		$this->content = $content;
@@ -394,6 +396,20 @@ class Modal{
 		//If the callButton is set and has at least its content, set the property to the given object, otherwise, set it to NULL
 		$this->callButton = ($callButton === NULL) ? NULL : ((isset($callButton['content'])) ? $callButton : NULL);
 		$this->formAttributes = $formAttributes;
+		switch($size){
+			case 'normal':
+				$this->size = '';
+				break;
+			case NULL:
+				$this->size = '';
+				break;
+			case 'large':
+				$this->size = ' modal-lg';
+				break;
+			case 'small':
+				$this->size = ' modal-sm';
+				break;
+		}
 	}
 
 	/**
@@ -412,7 +428,7 @@ class Modal{
 		//If the modal is auto called, we add it to the autoCallModals array
 		if($autoCall) Modal::$autoCallModals[] = $this->id;
 		return '<div class="modal fade" id="'.$this->id.'" tabindex="-1" role="dialog">
-				<div class="modal-dialog" role="document">
+				<div class="modal-dialog'.$this->size.'" role="document">
 					<div class="modal-content">
 					'.(!is_null($this->formAttributes) ? '<form '.$this->formAttributes.'>' : '').'
 						<div class="modal-header">
@@ -439,6 +455,19 @@ class Modal{
 					'.(!is_null($last) ? '});' : '').'
 				});
 			</script>' : '');
+	}
+
+	/**
+	 * Generates the call button's HTML.
+	 * 
+	 * Only works if the CallButton was given upon creating the modal object. Otherwise, returns false.
+	 *
+	 * @return string The button's HTML code
+	 */
+	public function getCallButton(){
+		if(is_null($this->callButton)) return FALSE;
+
+		return '<button '.((isset($this->callButton['attributes'])) ? $this->callButton['attributes'] : 'type="button" class="btn btn-primary"').' data-toggle="modal" data-target="#'.$this->id.'">'.$this->callButton['content'].'</button>';
 	}
 }
 

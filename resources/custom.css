@@ -31,3 +31,11 @@ body {
   height: 50px;
   background-color: #f5f5f5;
 }
+
+.alert-smallmargin {
+  margin-bottom: 5px;
+}
+
+.modal-sm {
+  width: 350px;
+}

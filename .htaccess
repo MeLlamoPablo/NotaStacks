@@ -7,6 +7,9 @@ RewriteEngine on
 #If nothing is matched, redirect to the index
 RewriteRule ^$ /notastacks/layout/index.php
 
+#Logout
+RewriteRule ^logout/?$ /notastacks/layout/index.php?logout
+
 #RewriteRule ^login/?$ /notastacks/layout/index.php?login
 
 ###################
