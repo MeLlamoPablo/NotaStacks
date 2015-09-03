@@ -37,6 +37,13 @@ $data = $output;
     //Prepare the rules modal
     $rulesModal = new Modal('rulesModal', $GLOBAL_CONFIG['site_name'].'\' rules', $GLOBAL_CONFIG['rules']);
     echo $rulesModal->getModal();
+    //Output all modals
+    if(isset($data['modals'])){
+        foreach($data['modals'] as $key => $value){
+            $modal = new Modal($key, $value['title'], $value['content'], isset($value['buttons']) ? $value['buttons'] : NULL, NULL, isset($value['formAttributes']) ? $value['formAttributes'] : NULL);
+            echo $modal->getModal($value['autocall']);
+        }
+    }
     ?>
 
     <?php if($data['user_logged_in'] === FALSE):
@@ -50,17 +57,7 @@ $data = $output;
         </div>
     <?php else: //$data['user_logged_in'] === FALSE
     //Stack dashboard?>
-        <?php $loggedUser->displayMessages();
-
-        //Output all modals
-        if(isset($data['modals'])){
-            foreach($data['modals'] as $key => $value){
-                $modal = new Modal($key, $value['title'], $value['content'], isset($value['buttons']) ? $value['buttons'] : NULL, NULL, isset($value['formAttributes']) ? $value['formAttributes'] : NULL);
-                echo $modal->getModal($value['autocall']);
-            }
-        }
-
-        ?>
+        <?php $loggedUser->displayMessages(); ?>
         <div id="joinedStacksRow" class="row">
             <h3>Joined Parties:</h3>
             <div id="joinedStacks" class=""></div>
@@ -132,7 +129,6 @@ $data = $output;
                     </div>
                 </div>
             </div>
-            </div>
         </div><!--/class="row"-->
         <div class="row stackContainter">
             <?php //Output stacks
@@ -198,10 +194,10 @@ $data = $output;
                                             .$data['stacks'][$i]['playerlist'].
                                             '<p>Please, be friendly and respectful towards them, and try not to be late. Have fun!</p>';
 
-                                            $modalButtons = '<button type="button" onclick="window.location.href=\'index.php?joinStack='.$data['stacks'][$i]['id'].'\';" class="btn btn-primary">Join the stack</button>';
+                                            $modalButtons = '<button type="button" onclick="window.location.href=\'/notastacks/join/'.$data['stacks'][$i]['id'].'\';" class="btn btn-primary">Join the party</button>';
 
                                             for($i3=0; $i3 < ($data['stacks'][$i]['maxplayers'] - $i2); $i3++){ 
-                                                echo '<button class="btn btn-info joinStack'.$data['stacks'][$i]['id'].'" style="width: 64px; height: 64px;" data-show="tooltip" title="Join the stack" data-toggle="modal" data-target="#modalJoinStack'.$data['stacks'][$i]['id'].'">
+                                                echo '<button class="btn btn-info joinStack'.$data['stacks'][$i]['id'].'" style="width: 64px; height: 64px;" data-show="tooltip" title="Join the party" data-toggle="modal" data-target="#modalJoinStack'.$data['stacks'][$i]['id'].'">
                                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                                             </button>';
                                             }

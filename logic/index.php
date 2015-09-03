@@ -78,7 +78,7 @@ if(isset($_SESSION['userid'])){
     }
 }elseif(isset($_POST['register_submit'])){ //If the user has registered
     //Do not accept petitons if the username or the password is missing, or the user hasn't completed the captcha, in case it's enabled
-    if(!isset($_POST['username']) OR !isset($_POST['pass']) OR (!isset($_POST['g-recaptcha-response']) AND $GLOBAL_CONFIG['ReCaptcha']['enabled'])){
+    if(!isset($_POST['username']) OR !isset($_POST['pass']) OR !isset($_POST['confirmPass']) OR (!isset($_POST['g-recaptcha-response']) AND $GLOBAL_CONFIG['ReCaptcha']['enabled'])){
         header('Location: /notastacks/');
         die();
     }
@@ -88,8 +88,15 @@ if(isset($_SESSION['userid'])){
         die('The captcha was failed<meta http-equiv="refresh" content="3; url=/notastacks/" />');
     }
 
+    if($_POST['pass'] !== $_POST['confirmPass']) die('Passwords do not match<meta http-equiv="refresh" content="3; url=/notastacks/" />');
+
     $username = $mysqli->real_escape_string($_POST['username']);
     $password = md5($_POST['pass']); //I wish I could use password_hash() but my shitty server is PHP 5.2 :(
+
+    $r = $mysqli->query("SELECT name FROM users WHERE `name` = '".$username."'");
+    $r = $r->fetch_assoc();
+
+    if(isset($r['name'])) die('Username already taken<meta http-equiv="refresh" content="3; url=/notastacks/" />');
 
     $mysqli->query("INSERT INTO users (`name`, `password`, `tos_name`) VALUES ('".$username."', '".$password."', '".$username."')");
 
@@ -229,7 +236,7 @@ if(isset($loggedUser) AND $loggedUser->ban !== '0'){
 }
 
 //Invitation handle
-if(isset($_GET['i'])){
+if(isset($_GET['i']) AND !isset($_SESSION['userid'])){
     $stack = new Stack($_GET['i']);
     if(isset($stack->id)){ //Dont contiune if the id provided is not valid
         $content = "<p>The stack will play ".$stack->gamemode.". The following players have already joined the stack:</p>"
@@ -240,8 +247,7 @@ if(isset($_GET['i'])){
             $content .= "$('#timeRemainingForStack".$stack->id."').html(stacktime.fromNow());";
         $content .= "</script>";
 
-        if(!isset($loggedUser)) $steamlogin = '<a href="/notastacks/layout/index.php?joinStack='.$_GET['i'].'"><img src="http://localhost/notastacks/steamauth/signinthroughsteam.png"></a>';
-        $modalButtons = isset($steamlogin) ? $steamlogin : '//TODO';
+        $modalButtons = '<button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#loginModal">Log in</button> <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#registerModal">Sign Up</button>';
         $output['modals']['invitationToStack'] = array(
             'title' => 'You\'ve been invited to play in a stack!',
             'content' => $content,

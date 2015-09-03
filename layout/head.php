@@ -5,7 +5,6 @@
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
 <!-- JS files -->
-<?php if($GLOBAL_CONFIG['ReCaptcha']['enabled']) echo '<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"></script>' ?>
 <script type="text/javascript" src="http://<?php echo $_SERVER['HTTP_HOST'] ?>/notastacks/bower_components/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="http://<?php echo $_SERVER['HTTP_HOST'] ?>/notastacks/bower_components/moment/min/moment.min.js"></script>
 <script type="text/javascript" src="http://<?php echo $_SERVER['HTTP_HOST'] ?>/notastacks/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>

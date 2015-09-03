@@ -79,9 +79,12 @@ $registerModal['content'] = '
 <div class="input-group">
     <span class="input-group-addon" id="passLabel">Password</span>
     <input type="password" class="form-control" id="pass" name="pass" aria-describedby="passLabel" required="required">
+</div>
+<div class="input-group">
+    <span class="input-group-addon" id="confirmPassLabel">Confirm Password</span>
+    <input type="password" class="form-control" id="confirmPass" name="confirmPass" aria-describedby="passLabel" required="required">
 </div>'
 .(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div id="captcha2"></div>' : '');
-//.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div class="g-recaptcha" data-sitekey="'.$GLOBAL_CONFIG['ReCaptcha']['site_key'].'"></div>' : '');
 $registerModal['buttons'] = '
 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 <button type="submit" name="register_submit" class="btn btn-primary">Sign Up</button>
@@ -108,4 +111,5 @@ if($GLOBAL_CONFIG['ReCaptcha']['enabled']): ?>
             });
         };
     </script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"></script>
 <?php endif; ?>
