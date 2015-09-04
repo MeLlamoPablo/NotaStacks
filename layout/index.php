@@ -34,9 +34,6 @@ $data = $output;
     <div class="container" id="wrap">
 
     <?php include 'menu.php';
-    //Prepare the rules modal
-    $rulesModal = new Modal('rulesModal', $GLOBAL_CONFIG['site_name'].'\' rules', $GLOBAL_CONFIG['rules']);
-    echo $rulesModal->getModal();
     //Output all modals
     if(isset($data['modals'])){
         foreach($data['modals'] as $key => $value){
@@ -44,9 +41,10 @@ $data = $output;
             echo $modal->getModal($value['autocall']);
         }
     }
+    if($data['user_logged_in']) $loggedUser->displayMessages();
     ?>
 
-    <?php if($data['user_logged_in'] === FALSE):
+    <?php if(!$data['user_logged_in']):
     //If the user hasn't signed in, we show the welcome message. ?>
         <div class="jumbotron" style="margin-top: -15px">
             <h1>Find parties. Lynch jesters.</h1>
@@ -57,7 +55,6 @@ $data = $output;
         </div>
     <?php else: //$data['user_logged_in'] === FALSE
     //Stack dashboard?>
-        <?php $loggedUser->displayMessages(); ?>
         <div id="joinedStacksRow" class="row">
             <h3>Joined Parties:</h3>
             <div id="joinedStacks" class=""></div>

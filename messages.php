@@ -18,12 +18,12 @@
 function getMessage($version){
 	global $GLOBAL_CONFIG;
 	switch($version){
-		case '0':
+		/*case '0':
 			return array(
 					'title' => 'Hello! Welcome to '.$GLOBAL_CONFIG['site_name'].'!',
 					'content' => '<p>Please, take a moment to read our rules.</p>
 					<div class="alert alert-warning" role="alert">By continuing to use '.$GLOBAL_CONFIG['site_name'].', you are agreeing to the following rules.</div>
-					'.$GLOBAL_CONFIG['rules']);
+					'.$GLOBAL_CONFIG['rules']);*/
 		
 		default:
 			return FALSE;

@@ -76,6 +76,9 @@ if(isset($_SESSION['userid'])){
         $_SESSION['userid'] = $r['id'];
         $loggedUser = new User('db', $_SESSION['userid']);
     }
+
+    //If the user has followed an invitation link
+    if(isset($_POST['joinAfter']) AND is_numeric($_POST['joinAfter'])) $joinStack = $_POST['joinAfter'];
 }elseif(isset($_POST['register_submit'])){ //If the user has registered
     //Do not accept petitons if the username or the password is missing, or the user hasn't completed the captcha, in case it's enabled
     if(!isset($_POST['username']) OR !isset($_POST['pass']) OR !isset($_POST['confirmPass']) OR (!isset($_POST['g-recaptcha-response']) AND $GLOBAL_CONFIG['ReCaptcha']['enabled'])){
@@ -100,6 +103,15 @@ if(isset($_SESSION['userid'])){
 
     $mysqli->query("INSERT INTO users (`name`, `password`, `tos_name`) VALUES ('".$username."', '".$password."', '".$username."')");
 
+    //Show the rules
+    $output['modals']['welcomeRules'] = array(
+        'title' => 'Hello! Welcome to '.$GLOBAL_CONFIG['site_name'].'!',
+        'content' => '<p>Please, take a moment to read our rules.</p>
+        <div class="alert alert-warning" role="alert">By continuing to use '.$GLOBAL_CONFIG['site_name'].', you are agreeing to the following rules.</div>
+        '.$GLOBAL_CONFIG['rules'],
+        'autocall' => TRUE
+    );
+
     //Ask for their ToS name
     $output['modals']['tosNameModal'] = array(
         'title' => 'Just one more thing!',
@@ -114,6 +126,9 @@ if(isset($_SESSION['userid'])){
     );
     $_SESSION['userid'] = $mysqli->insert_id;
     $loggedUser = new User('db', $_SESSION['userid']);
+
+    //If the user has followed an invitation link
+    if(isset($_POST['joinAfter']) AND is_numeric($_POST['joinAfter'])) $joinStack = $_POST['joinAfter'];
 }
 
 //Check if the user has logged in
@@ -190,14 +205,15 @@ if(isset($loggedUser) AND (isset($joinStack) OR isset($_GET['joinStack']))){
 
     //Add the player
     $stack->addPlayer($loggedUser);
-    die('<meta http-equiv="refresh" content="0; url=/notastacks/" />'); //We redirect the user so that we get rid of ?joinStack, thus, the user can refresh without being prompted an error.
+    if(!isset($_POST['joinAfter'])) die('<meta http-equiv="refresh" content="0; url=/notastacks/" />'); //We redirect the user so that we get rid of ?joinStack, thus, the user can refresh without being prompted an error.
+    //Though, we don't want to redirect the user if that means that we can't show the welcome modals.
 
 }elseif(!isset($loggedUser) AND (isset($joinStack) OR isset($_GET['joinStack']))){
     //If the user attempted to join a stack, but he wasn't logged in, that means he followed an invitation link
     //Force him to log in.
-    $_GET['login'] = TRUE;
+    /*$_GET['login'] = TRUE;
     steamlogin();
-    die();
+    die();*/
 }
 
 //If the player has left a stack
@@ -239,17 +255,18 @@ if(isset($loggedUser) AND $loggedUser->ban !== '0'){
 if(isset($_GET['i']) AND !isset($_SESSION['userid'])){
     $stack = new Stack($_GET['i']);
     if(isset($stack->id)){ //Dont contiune if the id provided is not valid
-        $content = "<p>The stack will play ".$stack->gamemode.". The following players have already joined the stack:</p>"
-                    .$stack->listPlayers()."<p>The stack will play on <span id='timeForStack".$stack->id."'></span> (that's <span id='timeRemainingForStack".$stack->id."'></span>!). Please, if you can't play (or you're not sure if you'll be able) at that time, refrain from joining the stack.</p>";
+        $content = "<p>The party will play ".$stack->gamemode.". The following players have already joined the party:</p>"
+                    .$stack->listPlayers()."<p>The party will play on <span id='timeForStack".$stack->id."'></span> (that's <span id='timeRemainingForStack".$stack->id."'></span>!). Please, if you can't play (or you're not sure if you'll be able) at that time, refrain from joining the party.</p>";
         $content .= "<script type='text/javascript'>";
             $content .= "var stacktime = moment('".$stack->time."', 'X');";
             $content .= "$('#timeForStack".$stack->id."').html(stacktime.format('LLLL'));";
             $content .= "$('#timeRemainingForStack".$stack->id."').html(stacktime.fromNow());";
         $content .= "</script>";
 
-        $modalButtons = '<button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#loginModal">Log in</button> <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#registerModal">Sign Up</button>';
+        $modalButtons = '<a href="/notastacks/join/'.$_GET['i'].'/login/" class="btn btn-primary">Log in</a> <a href="/notastacks/join/'.$_GET['i'].'/register/" class="btn btn-default">Sign Up</a>';
+
         $output['modals']['invitationToStack'] = array(
-            'title' => 'You\'ve been invited to play in a stack!',
+            'title' => 'You\'ve been invited to play in a party!',
             'content' => $content,
             'autocall' => TRUE,
             'buttons' => $modalButtons
@@ -299,6 +316,13 @@ if(!isset($loggedUser)){
         }
     }
 }
+
+//Prepare the rules modal
+$output['modals']['rulesModal'] = array(
+    'title' => $GLOBAL_CONFIG['site_name'].'\' rules',
+    'content' => $GLOBAL_CONFIG['rules'],
+    'autocall' => false
+);
 
 //Serve the data as JSON. This is useful for cross-platform apps. This currently has no implementation.
 if(FALSE){

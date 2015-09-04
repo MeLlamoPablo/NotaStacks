@@ -41,7 +41,6 @@
 </nav>
 
 <?php
-
 //Prepare the login modal
 $loginModal['content'] = '
 <div class="input-group">
@@ -52,7 +51,9 @@ $loginModal['content'] = '
     <span style="width: 95px;" class="input-group-addon" id="passLabel">Password</span>
     <input type="password" class="form-control" id="pass" name="pass" aria-describedby="passLabel" required="required">
 </div>'
-.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div id="captcha1"></div>' : '');
+.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div id="captcha1"></div>' : '')
+//If the player has followed an invitation link
+.((isset($_GET['login']) AND isset($_GET['joinStack'])) ? '<input type="hidden" name="joinAfter" value="'.$_GET['joinStack'].'">' : '');
 $loginModal['buttons'] = '
 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 <button type="submit" name="login_submit" class="btn btn-primary">Log In</button>
@@ -65,7 +66,7 @@ $loginModal['formAttributes'] = '
 method="post" action="http://'.$_SERVER['HTTP_HOST'].'/notastacks/"
 ';
 $loginModal = new Modal('loginModal', 'Log in', $loginModal['content'], $loginModal['buttons'], $loginModal['callButton'], $loginModal['formAttributes'], 'small');
-echo $loginModal->getModal();
+echo $loginModal->getModal((isset($_GET['login']) AND isset($_GET['joinStack'])) ? TRUE : FALSE);
 
 //Prepare the register modal
 $registerModal['content'] = '
@@ -84,7 +85,9 @@ $registerModal['content'] = '
     <span class="input-group-addon" id="confirmPassLabel">Confirm Password</span>
     <input type="password" class="form-control" id="confirmPass" name="confirmPass" aria-describedby="passLabel" required="required">
 </div>'
-.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div id="captcha2"></div>' : '');
+.(($GLOBAL_CONFIG['ReCaptcha']['enabled']) ? '<br><div id="captcha2"></div>' : '')
+//If the player has followed an invitation link
+.((isset($_GET['register']) AND isset($_GET['joinStack'])) ? '<input type="hidden" name="joinAfter" value="'.$_GET['joinStack'].'">' : '');
 $registerModal['buttons'] = '
 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 <button type="submit" name="register_submit" class="btn btn-primary">Sign Up</button>
@@ -97,7 +100,7 @@ $registerModal['formAttributes'] = '
 method="post" action="http://'.$_SERVER['HTTP_HOST'].'/notastacks/"
 ';
 $registerModal = new Modal('registerModal', 'Sign Up!', $registerModal['content'], $registerModal['buttons'], $registerModal['callButton'], $registerModal['formAttributes'], 'normal');
-echo $registerModal->getModal();
+echo $registerModal->getModal((isset($_GET['register']) AND isset($_GET['joinStack'])) ? TRUE : FALSE);
 
 //Render the captchas
 if($GLOBAL_CONFIG['ReCaptcha']['enabled']): ?>

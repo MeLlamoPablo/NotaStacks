@@ -16,8 +16,10 @@ RewriteRule ^logout/?$ /notastacks/layout/index.php?logout
 # DASHBOARD RULES #
 ###################
 
-#Join stack: if join/number/ is matched:
+#Join stack: if join/number/, join/number/login/ or /join/number/register is matched
 RewriteRule ^join/([0-9]+)/?$ /notastacks/layout/index.php?joinStack=$1
+RewriteRule ^join/([0-9]+)/login/?$ /notastacks/layout/index.php?joinStack=$1&login
+RewriteRule ^join/([0-9]+)/register/?$ /notastacks/layout/index.php?joinStack=$1&register
 
 #Leave stack: if leave/number/ is matched
 RewriteRule ^leave/([0-9]+)/?$ /notastacks/layout/index.php?leaveStack=$1
