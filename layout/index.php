@@ -205,7 +205,7 @@ $data = $output;
                                     }
 
                                 //Output time
-                                echo '<p>In <span id="timeForStack'.$data['stacks'][$i]['id'].'"></span> (that\'s <span id="timeRemainingForStack'.$data['stacks'][$i]['id'].'"></span>!)</p>';
+                                echo '<p>On <span id="timeForStack'.$data['stacks'][$i]['id'].'"></span> (that\'s <span id="timeRemainingForStack'.$data['stacks'][$i]['id'].'"></span>!)</p>';
                                 echo "<script type=\"text/javascript\">
                                     var stacktime = moment('".$data['stacks'][$i]['time']."', 'X');
                                     $('#timeForStack".$data['stacks'][$i]['id']."').html(stacktime.format('LLLL'));
