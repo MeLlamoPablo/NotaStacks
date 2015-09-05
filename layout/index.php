@@ -157,7 +157,7 @@ $data = $output;
                                 //List players
                                     echo '<div class="playerContainer">';
                                     for ($i2=0; $i2 < $data['stacks'][$i]['playercount']; $i2++) { 
-                                        echo '<a href="profile.php?id='.$data['stacks'][$i]['players'][$i2]['id'].'" target="_blank"><img src="'.$data['stacks'][$i]['players'][$i2]['avatar'].'" alt="'.$data['stacks'][$i]['players'][$i2]['name'].'\'s avatar" width="64" height="64" /></a>';
+                                        echo '<a href="/notastacks/profiles/'.$data['stacks'][$i]['players'][$i2]['id'].'/" target="_blank"><img src="'.$data['stacks'][$i]['players'][$i2]['avatar'].'" alt="'.$data['stacks'][$i]['players'][$i2]['name'].'\'s avatar" width="64" height="64" /></a>';
                                     }
 
                                     //If the stack is not full, show join buttons
